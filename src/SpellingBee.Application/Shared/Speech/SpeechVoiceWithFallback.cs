@@ -7,29 +7,22 @@ namespace SpellingBee.Application.Shared.Speech;
 /// Combines several engines into one voice list. A request goes to the engine that owns
 /// the voice; if that engine fails, the next engine's first voice is used instead.
 /// </summary>
-public sealed class SpeechVoiceWithFallback : ISpeechVoice
+public sealed class SpeechVoiceWithFallback(IReadOnlyList<ISpeechVoice> enginesInPreferenceOrder) : ISpeechVoice
 {
-    private readonly IReadOnlyList<ISpeechVoice> _enginesInPreferenceOrder;
-
-    public SpeechVoiceWithFallback(IReadOnlyList<ISpeechVoice> enginesInPreferenceOrder)
-    {
-        _enginesInPreferenceOrder = enginesInPreferenceOrder;
-    }
-
     public IReadOnlyList<VoiceOption> ListVoices() =>
-        _enginesInPreferenceOrder.SelectMany(engine => engine.ListVoices()).ToList();
+        enginesInPreferenceOrder.SelectMany(engine => engine.ListVoices()).ToList();
 
     public async Task PrepareVoiceAsync(CancellationToken cancellationToken)
     {
-        foreach (var engine in _enginesInPreferenceOrder) await engine.PrepareVoiceAsync(cancellationToken);
+        foreach (var engine in enginesInPreferenceOrder) await engine.PrepareVoiceAsync(cancellationToken);
     }
 
     public async Task<AudioClip> SynthesizeSpeechAsync(SpeechRequest request, CancellationToken cancellationToken)
     {
         var owner = FindEngineOwningVoice(request.VoiceId);
         var candidates = owner is null
-            ? _enginesInPreferenceOrder
-            : [owner, .. _enginesInPreferenceOrder.Where(engine => engine != owner)];
+            ? enginesInPreferenceOrder
+            : [owner, .. enginesInPreferenceOrder.Where(engine => engine != owner)];
 
         Exception? lastError = null;
         foreach (var engine in candidates)
@@ -49,5 +42,5 @@ public sealed class SpeechVoiceWithFallback : ISpeechVoice
     }
 
     private ISpeechVoice? FindEngineOwningVoice(string voiceId) =>
-        _enginesInPreferenceOrder.FirstOrDefault(engine => engine.ListVoices().Any(voice => voice.Id == voiceId));
+        enginesInPreferenceOrder.FirstOrDefault(engine => engine.ListVoices().Any(voice => voice.Id == voiceId));
 }

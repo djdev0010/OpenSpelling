@@ -6,17 +6,9 @@ using SpellingBee.Domain.Settings;
 namespace SpellingBee.Application.Shared.Speech;
 
 /// <summary>Speaks phrases and plays sound effects, using cached clips so playback is instant.</summary>
-public sealed class Narrator
+public sealed class Narrator(SpeechClipCache clipCache, IAudioPlayer player)
 {
-    private readonly SpeechClipCache _clipCache;
-    private readonly IAudioPlayer _player;
     private readonly Dictionary<SoundEffect, AudioClip> _soundEffects = new();
-
-    public Narrator(SpeechClipCache clipCache, IAudioPlayer player)
-    {
-        _clipCache = clipCache;
-        _player = player;
-    }
 
     public VoiceSettings Voice { get; set; } = VoiceSettings.Default;
 
@@ -27,8 +19,8 @@ public sealed class Narrator
     public async Task SpeakWithVoiceAsync(string text, VoiceSettings voice, CancellationToken cancellationToken)
     {
         var request = new SpeechRequest(text, voice.VoiceId, voice.Speed);
-        var clip = await _clipCache.GetOrCreateClipAsync(request, cancellationToken);
-        await _player.PlayClipAsync(clip, cancellationToken);
+        var clip = await clipCache.GetOrCreateClipAsync(request, cancellationToken);
+        await player.PlayClipAsync(clip, cancellationToken);
     }
 
     public Task PlaySoundEffectAsync(SoundEffect effect, CancellationToken cancellationToken)
@@ -38,6 +30,6 @@ public sealed class Narrator
             clip = SoundEffectGenerator.CreateSoundEffect(effect);
             _soundEffects[effect] = clip;
         }
-        return _player.PlayClipAsync(clip, cancellationToken);
+        return player.PlayClipAsync(clip, cancellationToken);
     }
 }

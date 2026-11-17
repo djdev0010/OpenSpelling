@@ -8,18 +8,11 @@ namespace SpellingBee.Infrastructure.MacOS.Microphone;
 /// Reads macOS's microphone permission (AVCaptureDevice authorization status). When the user
 /// hasn't been asked yet, briefly opening the microphone makes macOS show its permission prompt.
 /// </summary>
-public sealed class MacMicrophonePermission : IMicrophonePermission
+public sealed class MacMicrophonePermission(IMicrophone microphone) : IMicrophonePermission
 {
     private const string AVFoundationPath = "/System/Library/Frameworks/AVFoundation.framework/AVFoundation";
     private const string AudioMediaType = "soun"; // AVMediaTypeAudio
     private static readonly TimeSpan MaxWaitForUserAnswer = TimeSpan.FromSeconds(60);
-
-    private readonly IMicrophone _microphone;
-
-    public MacMicrophonePermission(IMicrophone microphone)
-    {
-        _microphone = microphone;
-    }
 
     public async Task<MicrophoneAccess> RequestMicrophoneAccessAsync(CancellationToken cancellationToken)
     {
@@ -36,7 +29,7 @@ public sealed class MacMicrophonePermission : IMicrophonePermission
         stopMicrophone.CancelAfter(MaxWaitForUserAnswer);
         try
         {
-            await foreach (var _ in _microphone.CaptureSamplesAsync(16_000, stopMicrophone.Token))
+            await foreach (var _ in microphone.CaptureSamplesAsync(16_000, stopMicrophone.Token))
             {
                 if (ReadAuthorizationStatus() != AuthorizationStatus.NotDetermined) break;
             }

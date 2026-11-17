@@ -6,27 +6,18 @@ using SpellingBee.Domain.Tuning;
 namespace SpellingBee.Application.PlayGame.Answers;
 
 /// <summary>Reads heard events for one word until the answer is complete or nothing comes.</summary>
-public sealed class AnswerCollector
+public sealed class AnswerCollector(
+    TimeProvider time,
+    GameTimings timings,
+    LetterRules letterRules,
+    IHeardAnswerLog heardLog)
 {
-    private readonly TimeProvider _time;
-    private readonly GameTimings _timings;
-    private readonly LetterRules _letterRules;
-    private readonly IHeardAnswerLog _heardLog;
-
-    public AnswerCollector(TimeProvider time, GameTimings timings, LetterRules letterRules, IHeardAnswerLog heardLog)
-    {
-        _time = time;
-        _timings = timings;
-        _letterRules = letterRules;
-        _heardLog = heardLog;
-    }
-
     /// <param name="showLetters">Called with the letters heard so far, after every change.</param>
     public async Task<AnswerResult> CollectAnswerAsync(
         ISpellingListener listener, string word, bool acceptSoundAlikes,
         Action<IReadOnlyList<char>> showLetters, CancellationToken cancellationToken)
     {
-        var answer = new AnswerInProgress(word, CreateRules(listener.InputKind, acceptSoundAlikes), _time);
+        var answer = new AnswerInProgress(word, CreateRules(listener.InputKind, acceptSoundAlikes), time);
         using var stopListening = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         var events = listener.ListenForLettersAsync(new ListenRequest(word), stopListening.Token);
         await using var reader = events.GetAsyncEnumerator(stopListening.Token);
@@ -42,7 +33,7 @@ public sealed class AnswerCollector
 
                 nextEvent = null;
                 answer.ApplyHeardEvent(reader.Current);
-                if (reader.Current is AnswerHeardSoFar spoken) _heardLog.AppendHeardAnswer(word, spoken.Text);
+                if (reader.Current is AnswerHeardSoFar spoken) heardLog.AppendHeardAnswer(word, spoken.Text);
                 showLetters(answer.Letters);
             }
             return answer.ToResult();
@@ -56,9 +47,9 @@ public sealed class AnswerCollector
     private AnswerRules CreateRules(SpellingInputKind inputKind, bool acceptSoundAlikes)
     {
         var silence = inputKind == SpellingInputKind.OnScreenKeyboard
-            ? _timings.SilenceThatEndsTypedAnswer
-            : _timings.SilenceThatEndsSpokenAnswer;
-        return new AnswerRules(_letterRules, acceptSoundAlikes, silence, _timings.WaitBeforeRepeatingPrompt);
+            ? timings.SilenceThatEndsTypedAnswer
+            : timings.SilenceThatEndsSpokenAnswer;
+        return new AnswerRules(letterRules, acceptSoundAlikes, silence, timings.WaitBeforeRepeatingPrompt);
     }
 
     /// <summary>True when the event arrived; false when the time ran out first.</summary>
@@ -67,7 +58,7 @@ public sealed class AnswerCollector
         if (timeLimit <= TimeSpan.Zero) return nextEvent.IsCompleted;
 
         using var cancelTimer = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        var timer = Task.Delay(timeLimit, _time, cancelTimer.Token);
+        var timer = Task.Delay(timeLimit, time, cancelTimer.Token);
         var first = await Task.WhenAny(nextEvent, timer);
         cancelTimer.Cancel();
         cancellationToken.ThrowIfCancellationRequested();

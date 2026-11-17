@@ -8,15 +8,9 @@ namespace SpellingBee.Application.Shared.Speech;
 /// Creates the audio for every phrase a word list needs, in the background, so playback is instant.
 /// Starting a new run cancels the previous one.
 /// </summary>
-public sealed class SpeechPreloader
+public sealed class SpeechPreloader(SpeechClipCache clipCache)
 {
-    private readonly SpeechClipCache _clipCache;
     private CancellationTokenSource? _currentRun;
-
-    public SpeechPreloader(SpeechClipCache clipCache)
-    {
-        _clipCache = clipCache;
-    }
 
     /// <summary>Progress from 0 to 1. Raised on a background thread.</summary>
     public event Action<double>? ProgressChanged;
@@ -45,7 +39,7 @@ public sealed class SpeechPreloader
     {
         try
         {
-            await _clipCache.GetOrCreateClipAsync(request, cancellationToken);
+            await clipCache.GetOrCreateClipAsync(request, cancellationToken);
         }
         catch (Exception error) when (error is not OperationCanceledException)
         {

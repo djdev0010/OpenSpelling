@@ -11,21 +11,13 @@ namespace SpellingBee.Application.Shared.Speech;
 /// Makes every spoken phrase once and keeps it (in memory once used, and in the clip store
 /// between runs), so a phrase plays instantly after the first time.
 /// </summary>
-public sealed class SpeechClipCache
+public sealed class SpeechClipCache(ISpeechVoice voice, ISpeechClipStore store)
 {
-    private readonly ISpeechVoice _voice;
-    private readonly ISpeechClipStore _store;
     private readonly ConcurrentDictionary<string, AudioClip> _clipsInMemory = new();
     private readonly SemaphoreSlim _oneSynthesisAtATime = new(1, 1);
 
-    public SpeechClipCache(ISpeechVoice voice, ISpeechClipStore store)
-    {
-        _voice = voice;
-        _store = store;
-    }
-
     public bool HasClip(SpeechRequest request) =>
-        _clipsInMemory.ContainsKey(CreateKey(request)) || _store.HasClip(CreateKey(request));
+        _clipsInMemory.ContainsKey(CreateKey(request)) || store.HasClip(CreateKey(request));
 
     public async Task<AudioClip> GetOrCreateClipAsync(SpeechRequest request, CancellationToken cancellationToken)
     {
@@ -49,16 +41,16 @@ public sealed class SpeechClipCache
     public void DeleteAllClips()
     {
         _clipsInMemory.Clear();
-        _store.DeleteAllClips();
+        store.DeleteAllClips();
     }
 
     private async Task<AudioClip> LoadOrSynthesizeClipAsync(string key, SpeechRequest request, CancellationToken cancellationToken)
     {
-        var saved = _store.LoadClip(key);
+        var saved = store.LoadClip(key);
         if (saved is not null) return saved;
 
-        var clip = await _voice.SynthesizeSpeechAsync(request, cancellationToken);
-        _store.SaveClip(key, clip);
+        var clip = await voice.SynthesizeSpeechAsync(request, cancellationToken);
+        store.SaveClip(key, clip);
         return clip;
     }
 

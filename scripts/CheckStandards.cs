@@ -213,7 +213,32 @@ void CheckType(SyntaxTree tree, string file, TypeDeclarationSyntax type)
         problems.Add($"{Location(tree, type)}: type '{name}' is {lines} lines (max {MaxClassLines}) (§3)");
     if (vagueTypeSuffixes.Any(s => name.EndsWith(s, StringComparison.Ordinal)))
         problems.Add($"{Location(tree, type)}: type '{name}' has a vague suffix; name its one job (§5)");
+    if (type is ClassDeclarationSyntax { ParameterList: { } primaryParameters })
+        CheckPrimaryConstructor(tree, type, primaryParameters);
 }
+
+// Primary constructor parameters stand in for private readonly fields, so they are never reassigned.
+void CheckPrimaryConstructor(SyntaxTree tree, TypeDeclarationSyntax type, ParameterListSyntax parameterList)
+{
+    var name = type.Identifier.Text;
+    if (parameterList.Parameters.Count > MaxParameters)
+        problems.Add($"{Location(tree, type)}: '{name}' (primary constructor) has {parameterList.Parameters.Count} parameters (max {MaxParameters}) (§3)");
+
+    var parameterNames = parameterList.Parameters.Select(p => p.Identifier.Text).ToHashSet();
+    var assignedNames = type.DescendantNodes().Select(AssignedIdentifier).OfType<IdentifierNameSyntax>()
+        .Where(id => parameterNames.Contains(id.Identifier.Text));
+    foreach (var assigned in assignedNames)
+        problems.Add($"{Location(tree, assigned)}: '{assigned.Identifier.Text}' is a primary constructor parameter; never reassign it (§4)");
+}
+
+static ExpressionSyntax? AssignedIdentifier(SyntaxNode node) => node switch
+{
+    AssignmentExpressionSyntax assignment => assignment.Left,
+    PrefixUnaryExpressionSyntax { RawKind: (int)SyntaxKind.PreIncrementExpression or (int)SyntaxKind.PreDecrementExpression } prefix => prefix.Operand,
+    PostfixUnaryExpressionSyntax { RawKind: (int)SyntaxKind.PostIncrementExpression or (int)SyntaxKind.PostDecrementExpression } postfix => postfix.Operand,
+    ArgumentSyntax { RefKindKeyword.RawKind: (int)SyntaxKind.RefKeyword or (int)SyntaxKind.OutKeyword } argument => argument.Expression,
+    _ => null,
+};
 
 void CheckMethod(SyntaxTree tree, string file, BaseMethodDeclarationSyntax method)
 {

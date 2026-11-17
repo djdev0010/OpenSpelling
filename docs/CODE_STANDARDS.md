@@ -111,7 +111,7 @@ Members appear in this order, each group separated by a blank line:
 
 1. Constants and `static readonly` fields
 2. Instance fields (`private readonly` first)
-3. Constructor(s)
+3. Constructor(s), unless the class has a primary constructor
 4. Events
 5. Public properties
 6. Public methods — in the order a caller would use them
@@ -149,6 +149,11 @@ not by line count.
   `record`s. Classes are `sealed` unless designed for inheritance.
 - **Composition over inheritance.** No base classes for sharing code; use small
   collaborators.
+- **Primary constructors for dependencies.** When a constructor would only store its
+  parameters, use a primary constructor (`class Narrator(SpeechClipCache clipCache, IAudioPlayer player)`)
+  and use the parameters directly, with no `_field` copy. Parameters are never reassigned (the
+  checker enforces this, since they can't be `readonly`). Write an ordinary constructor when it
+  does work: subscribes to events, creates folders, or computes fields.
 - **Expected outcomes are values, not exceptions.** e.g. `ListenResult` says
   "answered / no answer / cancelled". Exceptions are for bugs and broken
   environments (missing model file).
