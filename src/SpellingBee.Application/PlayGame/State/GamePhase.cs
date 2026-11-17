@@ -8,7 +8,7 @@ public enum GamePhase
     /// <summary>"Listen and learn": the app reads and spells each word.</summary>
     Teaching,
 
-    /// <summary>The app is saying "Spell, car."</summary>
+    /// <summary>The app is saying "Please spell: car."</summary>
     Prompting,
 
     /// <summary>The microphone (or keyboard) is open for the child's answer.</summary>

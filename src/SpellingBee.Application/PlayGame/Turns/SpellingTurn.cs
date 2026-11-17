@@ -8,8 +8,9 @@ using SpellingBee.Domain.Speech;
 namespace SpellingBee.Application.PlayGame.Turns;
 
 /// <summary>
-/// One word: say "Spell, car.", listen, decide right or wrong, then cheer or show the spelling.
-/// Repeats the prompt when nothing is heard, and pauses after a few tries.
+/// One word: say "Please spell: car.", listen, decide right or wrong, then cheer or show the spelling.
+/// Repeats the prompt when nothing is heard, and pauses after a few tries. The child can tap
+/// to hear the word again.
 /// </summary>
 public sealed class SpellingTurn
 {
@@ -53,32 +54,53 @@ public sealed class SpellingTurn
     private async Task<bool?> PromptAndListenAsync(string word, bool acceptSoundAlikes, CancellationToken cancellationToken)
     {
         _state.ShowWord(word, GamePhase.Prompting, revealed: false);
-        await _services.Narrator.SpeakAsync(Phrases.SpellPrompt(word), cancellationToken);
-        await Task.Delay(_services.Tuning.Timings.PauseBeforeListening, _services.Time, cancellationToken);
+        while (true)
+        {
+            await _services.Narrator.SpeakAsync(Phrases.SpellPrompt(word), cancellationToken);
+            var answer = await ListenForAnswerAsync(word, acceptSoundAlikes, cancellationToken);
+            if (answer == TurnAnswer.NoAnswer) return null;
+            if (answer != TurnAnswer.WordAskedAgain) return answer == TurnAnswer.SpelledRight;
 
-        _state.ShowPhase(GamePhase.Listening);
-        _signals.GrownUpVerdict.Clear();
-        return await ListenOrTakeGrownUpVerdictAsync(word, acceptSoundAlikes, cancellationToken);
+            _state.ShowPhase(GamePhase.Prompting);
+        }
     }
 
-    private async Task<bool?> ListenOrTakeGrownUpVerdictAsync(string word, bool acceptSoundAlikes, CancellationToken cancellationToken)
+    private async Task<TurnAnswer> ListenForAnswerAsync(string word, bool acceptSoundAlikes, CancellationToken cancellationToken)
+    {
+        await Task.Delay(_services.Tuning.Timings.PauseBeforeListening, _services.Time, cancellationToken);
+        _state.ShowPhase(GamePhase.Listening);
+        _signals.GrownUpVerdict.Clear();
+        _signals.WordAskedAgain.Clear();
+        return await ListenOrTakeTapAsync(word, acceptSoundAlikes, cancellationToken);
+    }
+
+    // Listening stops when the child answers, a grown-up gives a verdict, or the child asks
+    // to hear the word again (the microphone must not hear the app say it).
+    private async Task<TurnAnswer> ListenOrTakeTapAsync(string word, bool acceptSoundAlikes, CancellationToken cancellationToken)
     {
         using var stop = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         var listening = _collector.CollectAnswerAsync(
             _services.Listener, word, acceptSoundAlikes, _state.ShowHeardLetters, stop.Token);
         var grownUpVerdict = _signals.GrownUpVerdict.WaitForValueAsync(stop.Token);
+        var wordAskedAgain = _signals.WordAskedAgain.WaitForValueAsync(stop.Token);
 
-        var first = await Task.WhenAny(listening, grownUpVerdict);
+        var first = await Task.WhenAny(listening, grownUpVerdict, wordAskedAgain);
         await stop.CancelAsync();
-        await IgnoreCancellationAsync(first == listening ? grownUpVerdict : listening);
+        await IgnoreCancellationAsync(listening);
+        await IgnoreCancellationAsync(grownUpVerdict);
+        await IgnoreCancellationAsync(wordAskedAgain);
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (first == grownUpVerdict) return await grownUpVerdict;
+        if (first == wordAskedAgain) return TurnAnswer.WordAskedAgain;
+        if (first == grownUpVerdict) return ToTurnAnswer(await grownUpVerdict);
 
         var answer = await listening;
-        if (answer.Outcome == AnswerOutcome.NoAnswer) return null;
-        return _matcher.CompareHeardLettersToWord(word, answer.Letters, acceptSoundAlikes) == MatchState.Correct;
+        if (answer.Outcome == AnswerOutcome.NoAnswer) return TurnAnswer.NoAnswer;
+        return ToTurnAnswer(_matcher.CompareHeardLettersToWord(word, answer.Letters, acceptSoundAlikes) == MatchState.Correct);
     }
+
+    private static TurnAnswer ToTurnAnswer(bool spelledRight) =>
+        spelledRight ? TurnAnswer.SpelledRight : TurnAnswer.SpelledWrong;
 
     private async Task CelebrateAsync(CancellationToken cancellationToken)
     {

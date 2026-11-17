@@ -38,6 +38,11 @@
                     Foreground="{StaticResource CurrentBlueBrush}" IsVisible="{Binding IsListening}" />
         </Panel>
         <game:AnswerLettersView DataContext="{Binding AnswerLetters}" />
+        <!-- Hear the word again, slowly. -->
+        <Button Classes="big-round small" Command="{Binding SayWordAgainCommand}"
+                IsVisible="{Binding IsListening}" HorizontalAlignment="Center">
+          <PathIcon Data="{StaticResource SpeakerIcon}" Foreground="{StaticResource BeeAmberBrush}" />
+        </Button>
         <Button Classes="big-round pulse" Command="{Binding KeepGoingCommand}"
                 IsVisible="{Binding IsWaitingForChild}" HorizontalAlignment="Center">
           <PathIcon Data="{StaticResource PlayIcon}" />

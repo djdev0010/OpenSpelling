@@ -10,12 +10,13 @@ public static class Phrases
     public const string TryTheTrickyOnesAgain = "Let's try the tricky ones again!";
     public const string AllSpelled = "You spelled them all! Great job!";
     public const string StillThere = "Are you still there? Tap the big button when you're ready.";
-    public const string VoiceSample = "Hi! Let's practice spelling. Spell, cat.";
+    public const string VoiceSample = "Hi! Let's practice spelling. Please spell: cat.";
 
     public static IReadOnlyList<string> Cheers { get; } =
-        ["Yay! You got it!", "Great job!", "Awesome spelling!", "You did it!", "Super!"];
+        ["Yay! You got it!", "Nice Job!", "Great job!", "Awesome spelling!", "You did it!", "Super!"];
 
-    public static string SpellPrompt(string word) => $"Spell, {word}.";
+    // One phrase, not two clips: Kokoro adds a stray syllable before a short word said on its own.
+    public static string SpellPrompt(string word) => $"Please spell: {word}.";
 
     public static string GoodTryWithCorrectSpelling(string word) =>
         $"Good try. {Capitalize(word)} is spelled {LetterNames.SpellOutForSpeech(word)}.";

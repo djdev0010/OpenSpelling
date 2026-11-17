@@ -67,6 +67,9 @@ public sealed class PlayGameService
 
     public void SendGrownUpVerdict(bool spelledRight) => _signals.GrownUpVerdict.Send(spelledRight);
 
+    /// <summary>Says "Please spell: …" again and listens again. Only works while listening.</summary>
+    public void SayWordAgain() => _signals.WordAskedAgain.Send(true);
+
     public void ContinueAfterPause() => _signals.ChildIsBack.Send(true);
 
     public void PressLetterKey(char letter) => _keyboard.PressLetterKey(letter);

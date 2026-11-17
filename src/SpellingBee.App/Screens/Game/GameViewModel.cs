@@ -81,6 +81,9 @@ public sealed partial class GameViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void SayWordAgain() => _playGame.SayWordAgain();
+
+    [RelayCommand]
     private void KeepGoing() => _playGame.ContinueAfterPause();
 
     [RelayCommand]

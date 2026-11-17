@@ -7,7 +7,7 @@ using PortAudioBindings = PortAudioSharp.PortAudio;
 
 namespace SpellingBee.Infrastructure.PortAudio.Microphone;
 
-/// <summary>Captures mono audio from the default input device while enumerated.</summary>
+/// <summary>Captures mono audio from the built-in (or else the default) microphone while enumerated.</summary>
 public sealed class PortAudioMicrophone : IMicrophone
 {
     private const uint SamplesPerChunk = 1024;
@@ -16,7 +16,7 @@ public sealed class PortAudioMicrophone : IMicrophone
         int sampleRate, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         PortAudioRuntime.EnsureStarted();
-        var device = PortAudioBindings.DefaultInputDevice;
+        var device = InputDeviceChooser.ChooseInputDevice();
         if (device == PortAudioBindings.NoDevice) yield break;
 
         var chunks = Channel.CreateUnbounded<float[]>(new UnboundedChannelOptions { SingleReader = true });
