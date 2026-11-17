@@ -1,6 +1,6 @@
 # Third-party software and models
 
-Everything Spelling Bee uses is open source and runs offline. Record every new package
+Everything Spell on Words uses is open source and runs offline. Record every new package
 or model here, with its license (see CODE_STANDARDS.md §8).
 
 ## NuGet packages

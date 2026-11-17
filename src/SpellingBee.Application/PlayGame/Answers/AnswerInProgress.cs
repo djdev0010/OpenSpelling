@@ -57,7 +57,7 @@ internal sealed class AnswerInProgress
                 _letters.AddRange(_letterRules.Normalizer.ConvertToLetters(text.Text));
                 break;
             case AnswerHeardSoFar wholeAnswer:
-                _isChildSpeaking = false;
+                _isChildSpeaking = wholeAnswer.IsChildStillSpeaking;
                 _letters.Clear();
                 _letters.AddRange(_letterRules.Normalizer.ConvertToLetters(wholeAnswer.Text));
                 break;

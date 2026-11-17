@@ -115,7 +115,7 @@ public sealed class SpellingTurn
     {
         _state.RevealCurrentWord(GamePhase.ShowingCorrectSpelling);
         await _services.Narrator.PlaySoundEffectAsync(SoundEffect.SoftTone, cancellationToken);
-        await _services.Narrator.SpeakAsync(Phrases.GoodTryWithCorrectSpelling(word), cancellationToken);
+        await _services.Narrator.SpeakSpelledWordAsync(Phrases.GoodTryWithCorrectSpelling(word), cancellationToken);
     }
 
     private async Task WaitForChildToComeBackAsync(CancellationToken cancellationToken)

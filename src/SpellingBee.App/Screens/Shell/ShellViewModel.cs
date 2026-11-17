@@ -47,7 +47,7 @@ public sealed partial class ShellViewModel : ObservableObject
         }
         catch (Exception error)
         {
-            Trace.TraceError($"Spelling Bee failed to start: {error}");
+            Trace.TraceError($"Spell on Words failed to start: {error}");
         }
     }
 

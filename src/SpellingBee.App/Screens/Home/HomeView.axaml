@@ -16,7 +16,7 @@
     <!-- Title. -->
     <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="16" HorizontalAlignment="Center" Margin="0,8,0,0">
       <PathIcon Data="{StaticResource StarIcon}" Width="56" Height="56" Foreground="{StaticResource BeeYellowBrush}" />
-      <TextBlock Classes="title" Text="Spelling Bee" />
+      <TextBlock Classes="title" Text="Spell on Words" />
     </StackPanel>
 
     <!-- The two things a child can do: same size, Play is the yellow one. -->

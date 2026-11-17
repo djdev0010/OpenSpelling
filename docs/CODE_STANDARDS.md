@@ -1,11 +1,11 @@
-# Spelling Bee — Code Standards
+# Spell on Words — Code Standards
 
 The goal is code a person can read top to bottom without a debugger. When a rule
 gets in the way of that, readability wins — and we update this file.
 
 ## 1. Architecture
 
-The app follows Clean Architecture. [Spelling Bee architecture](ARCHITECTURE.md) explains it
+The app follows Clean Architecture. [Spell on Words architecture](ARCHITECTURE.md) explains it
 with diagrams, a "where does it go" table and a walkthrough; read it first. The rules:
 
 - **Four layers, one project each:** `SpellingBee.Domain` → `SpellingBee.Application` →
@@ -158,7 +158,7 @@ not by line count.
   "answered / no answer / cancelled". Exceptions are for bugs and broken
   environments (missing model file).
 - **No magic numbers.** Timings, thresholds and recognition tables live in
-  `Domain/Tuning/` (`LetterTuning`, `GameTimings`, `ListenerTuning`, gathered in
+  `Domain/Tuning/` (`LetterTuning`, `GameTimings`, `ListenerTuning`, `SpeechTimings`, gathered in
   `AppTuning`). A value someone might need to adjust goes there, not in a constant.
   See [TUNING.md](TUNING.md).
 

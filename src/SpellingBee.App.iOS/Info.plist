@@ -34,7 +34,10 @@
   <dict/>
   <key>UIStatusBarHidden</key>
   <true/>
+  <!-- No encryption beyond what iPadOS itself does, so App Store Connect skips export questions. -->
+  <key>ITSAppUsesNonExemptEncryption</key>
+  <false/>
   <key>NSMicrophoneUsageDescription</key>
-  <string>Spelling Bee listens while your child spells words out loud. Nothing leaves this iPad.</string>
+  <string>Spell on Words listens while your child spells words out loud. Nothing leaves this iPad.</string>
 </dict>
 </plist>

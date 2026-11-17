@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds Spelling Bee for a real iPad, installs it, and starts it, in one command.
+# Builds Spell on Words for a real iPad, installs it, and starts it, in one command.
 # Run scripts/get-models.sh and scripts/build-sherpa-ios.sh first, and plug in the iPad.
 #
 # Usage: scripts/install-ipad.sh [--debug]
@@ -115,8 +115,8 @@ echo "Installing on the iPad (about 900 MB, so this takes a minute)…"
 xcrun devicectl device install app --device "$IPAD_ID" "$APP" > /dev/null
 if ! LAUNCH_ERROR="$(xcrun devicectl device process launch --device "$IPAD_ID" "$BUNDLE_ID" 2>&1)"; then
   if grep -q "unlocked" <<< "$LAUNCH_ERROR"; then
-    fail "Installed, but the iPad is locked. Unlock it and tap Spelling Bee."
+    fail "Installed, but the iPad is locked. Unlock it and tap Spell on Words."
   fi
-  fail "Installed, but iPadOS wouldn't start it. On the iPad, open Settings → General → VPN & Device Management, trust your Apple ID, and open Spelling Bee."
+  fail "Installed, but iPadOS wouldn't start it. On the iPad, open Settings → General → VPN & Device Management, trust your Apple ID, and open Spell on Words."
 fi
-echo "Spelling Bee is running on the iPad."
+echo "Spell on Words is running on the iPad."

@@ -1,4 +1,4 @@
-# Spelling Bee
+# Spell on Words
 
 An offline spelling-practice app for a 5-year-old. A grown-up types in the week's
 words and taps Start. The app then says each word, listens while the child spells
@@ -32,7 +32,7 @@ denied, the app shows a big letter keyboard instead.
 scripts/bundle-mac.sh
 ```
 
-This creates `dist/Spelling Bee.app`. It is self-contained (no .NET needed), has the
+This creates `dist/Spell on Words.app`. It is self-contained (no .NET needed), has the
 models inside, and is signed ad hoc so it runs on this Mac. To share it with other Macs
 it needs a Developer ID signature and notarization.
 
@@ -116,11 +116,56 @@ a few minutes.
 
 8. The first time, iPadOS blocks the app because it doesn't know you yet. On the iPad, open
    **Settings → General → VPN & Device Management**, tap your Apple ID, and tap **Trust**. Then
-   open Spelling Bee from the Home Screen.
+   open Spell on Words from the Home Screen.
 
 **If the build says no provisioning profile matches**, the bundle ID in step 7 is different from
 the one you ran in Xcode in step 4, or that Xcode run didn't finish. Run the Xcode project on the
 iPad again.
+
+### Share it with TestFlight
+
+TestFlight lets other people install the app on their iPads before it's on the App Store.
+
+**Prerequisites**
+
+- A paid Apple Developer Program membership. A free Apple ID can't use TestFlight.
+- [Install it on a real iPad](#install-it-on-a-real-ipad) done at least once. The TestFlight script
+  reuses its bundle ID (`.ipad-bundle-id`) and signing profile.
+
+> [!IMPORTANT]
+> The bundle ID can't change once the app exists in App Store Connect. To use a nicer one than
+> the random ID the install script picked, put it in `.ipad-bundle-id` and run
+> `scripts/install-ipad.sh` again before step 1.
+
+1. In [App Store Connect](https://appstoreconnect.apple.com), choose **Apps → + → New App**. Pick
+   iOS, name it **Spell on Words: Spelling Practice** (App Store names must be unique; the name
+   under the icon stays "Spell on Words"), and choose the bundle ID from `.ipad-bundle-id`.
+2. Build and upload:
+
+   ```bash
+   scripts/publish-testflight.sh
+   ```
+
+   It numbers the build with the date and time, signs it for the App Store with the Apple ID signed
+   in to Xcode, and uploads it. The first run creates the App Store certificate and profile.
+3. Wait 10–30 minutes for the build to appear under **TestFlight** in App Store Connect.
+4. Add testers:
+   - **Internal testing:** up to 100 people on your App Store Connect team. They can install
+     right away.
+   - **External testing:** up to 10,000 people by email or a public link. Each new version goes
+     through Apple's beta review first, which usually takes about a day.
+
+Testers install the TestFlight app, then Spell on Words from it. Each build expires after 90 days.
+The app is about 850 MB, so testers should download it on Wi-Fi.
+
+> [!NOTE]
+> This repository is public, so nothing tied to an Apple account is stored in it. The bundle ID is
+> in `.ipad-bundle-id` and the team comes from Xcode, both on your Mac only. To upload with an App
+> Store Connect API key instead, set `SPELLINGBEE_API_KEY_PATH`, `SPELLINGBEE_API_KEY_ID` and
+> `SPELLINGBEE_API_ISSUER_ID`, and keep the `.p8` file outside the repository.
+
+To check that the App Store build works without uploading anything, run
+`scripts/publish-testflight.sh --archive-only`.
 
 ## Using it
 

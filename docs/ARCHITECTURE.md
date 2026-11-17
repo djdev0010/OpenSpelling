@@ -1,6 +1,6 @@
-# Spelling Bee architecture
+# Spell on Words architecture
 
-Spelling Bee uses Clean Architecture with the project names most .NET solutions use:
+Spell on Words uses Clean Architecture with the project names most .NET solutions use:
 **Domain**, **Application**, **Infrastructure** and the app itself. Each layer is a project,
 and each kind of type has exactly one place it can live. This article explains the layers,
 shows where every kind of type goes, and walks through adding a feature. The checker

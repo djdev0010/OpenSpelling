@@ -1,6 +1,6 @@
 # Fix misheard letters
 
-When Spelling Bee marks a correctly spelled word as wrong, the cause is almost always one
+When Spell on Words marks a correctly spelled word as wrong, the cause is almost always one
 of a few tuning values: a word the recognizer writes for a letter, letters that sound alike,
 or how much audio the microphone keeps. Every tuning value lives in one folder of the code,
 `src/SpellingBee.Domain/Tuning/`. This article shows how to find out what the app heard and
@@ -46,6 +46,8 @@ Match what you see in the log to a fix. All the files are in `src/SpellingBee.Do
 | Background noise shows up as letters | `ListenerTuning.cs` | Raise `SpeechDetectionThreshold` or `ShortestSpeech`. |
 | The answer ends before the child is done | `GameTimings.cs` | Raise `SilenceThatEndsSpokenAnswer`. |
 | The prompt repeats too soon | `GameTimings.cs` | Raise `WaitBeforeRepeatingPrompt`. |
+| Spelled-out letters ("Cat is spelled C… A… T.") come too fast or too slow | `SpeechTimings.cs` | Change `PauseBetweenLetters`. |
+| Letters show up on screen late, or the app feels slow while the child talks | `ListenerTuning.cs` | Lower `TimeBetweenGuessesWhileSpeaking` to show letters sooner, or raise it to use less CPU. |
 
 > [!NOTE]
 > Sound-alike groups only apply when **Accept sound-alike letters** is turned on in
@@ -99,6 +101,6 @@ Knowing these rules helps you pick the right fix.
 
 ## Next steps
 
-- [Spelling Bee architecture](ARCHITECTURE.md): where code belongs.
+- [Spell on Words architecture](ARCHITECTURE.md): where code belongs.
 - [Code standards](CODE_STANDARDS.md): how code is named and sized.
 - [Third-party software and models](THIRD_PARTY.md): the speech models behind the recognizer.

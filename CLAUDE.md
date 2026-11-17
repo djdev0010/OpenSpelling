@@ -1,4 +1,4 @@
-# Spelling Bee
+# Spell on Words
 
 Offline spelling practice app for a 5-year-old. Avalonia (C#) desktop app, macOS first;
 Windows and iOS later via adapter projects.

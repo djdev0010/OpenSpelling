@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using SpellingBee.Application.Ports.Listening;
 using SpellingBee.Application.Ports.Microphone;
@@ -8,7 +9,8 @@ namespace SpellingBee.Infrastructure.Sherpa.Listening;
 /// <summary>
 /// Listens to the microphone, splits speech into stretches with voice-activity detection,
 /// and after each pause re-recognizes the whole answer so far (letters are much easier to hear
-/// in context than one by one). Works on every desktop platform, fully offline.
+/// in context than one by one). While the child keeps talking it also makes a quick guess every
+/// so often, so letters appear on screen as they are said. Works fully offline.
 /// </summary>
 public sealed class SherpaLetterListener(
     SpeechModelFiles modelFiles,
@@ -38,6 +40,7 @@ public sealed class SherpaLetterListener(
         var recognizer = _recognizer ?? throw new InvalidOperationException("Call PrepareListenerAsync first.");
         using var segmenter = new SpeechSegmenter(modelFiles, tuning);
         var recording = new AnswerRecording(tuning);
+        var pacer = new GuessPacer(tuning);
         bool wasSpeaking = false;
         bool hasHeardFirstSamples = false;
 
@@ -49,16 +52,39 @@ public sealed class SherpaLetterListener(
 
             recording.AddMicrophoneSamples(samples);
             var finishedSpeech = segmenter.AddSamplesAndTakeFinishedSpeech(samples);
-            if (segmenter.IsSpeechHappening && !wasSpeaking) yield return new SpeechStarted();
-            wasSpeaking = segmenter.IsSpeechHappening;
+            bool isSpeaking = segmenter.IsSpeechHappening;
+            if (isSpeaking && !wasSpeaking)
+            {
+                recording.MarkSpeechStarted();
+                pacer.StartPacing(recording.SampleCount);
+                yield return new SpeechStarted();
+            }
+            wasSpeaking = isSpeaking;
 
-            if (finishedSpeech.Count == 0) continue;
-            foreach (var stretch in finishedSpeech) recording.MarkStretchOfSpeech(stretch);
-            var wholeAnswer = recording.CutSpokenAnswer();
-            var text = await Task.Run(() => recognizer.ConvertSpeechToText(wholeAnswer), cancellationToken);
-            yield return new AnswerHeardSoFar(text);
+            if (finishedSpeech.Count > 0)
+            {
+                foreach (var stretch in finishedSpeech) recording.MarkStretchOfSpeech(stretch);
+                yield return new AnswerHeardSoFar(await RecognizeAsync(recognizer, recording.CutSpokenAnswer(), cancellationToken));
+            }
+            else if (isSpeaking && pacer.IsTimeToGuess(recording.SampleCount))
+            {
+                yield return await GuessWhileSpeakingAsync(recognizer, recording, pacer, cancellationToken);
+            }
         }
     }
 
     public void Dispose() => _recognizer?.Dispose();
+
+    // Shows letters as they are said, instead of only after the child stops talking.
+    private static async Task<AnswerHeardSoFar> GuessWhileSpeakingAsync(
+        LetterSpeechRecognizer recognizer, AnswerRecording recording, GuessPacer pacer, CancellationToken cancellationToken)
+    {
+        var startedAt = Stopwatch.GetTimestamp();
+        var text = await RecognizeAsync(recognizer, recording.CutAnswerSoFar(), cancellationToken);
+        pacer.WaitAfterGuess(recording.SampleCount, Stopwatch.GetElapsedTime(startedAt));
+        return new AnswerHeardSoFar(text, IsChildStillSpeaking: true);
+    }
+
+    private static Task<string> RecognizeAsync(LetterSpeechRecognizer recognizer, float[] speech, CancellationToken cancellationToken) =>
+        Task.Run(() => recognizer.ConvertSpeechToText(speech), cancellationToken);
 }

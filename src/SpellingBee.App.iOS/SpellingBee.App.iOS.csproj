@@ -5,7 +5,7 @@
     <OutputType>Exe</OutputType>
     <SupportedOSPlatformVersion>17.0</SupportedOSPlatformVersion>
     <RootNamespace>SpellingBee.App.iOS</RootNamespace>
-    <ApplicationTitle>Spelling Bee</ApplicationTitle>
+    <ApplicationTitle>Spell on Words</ApplicationTitle>
     <ApplicationId>local.spellingbee.app</ApplicationId>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>

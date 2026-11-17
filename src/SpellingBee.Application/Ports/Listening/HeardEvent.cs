@@ -24,7 +24,12 @@ public sealed record TextHeard(string Text) : HeardEvent;
 /// Replaces any text heard earlier: hearing the whole answer at once is far more accurate
 /// than hearing one letter at a time, so earlier guesses can be corrected.
 /// </summary>
-public sealed record AnswerHeardSoFar(string Text) : HeardEvent;
+/// <param name="Text">What the recognizer heard, from the first letter up to now.</param>
+/// <param name="IsChildStillSpeaking">
+/// True for a quick guess made while the child is still talking, so letters show up as they are
+/// said. The last letter may be cut off; the next guess corrects it.
+/// </param>
+public sealed record AnswerHeardSoFar(string Text, bool IsChildStillSpeaking = false) : HeardEvent;
 
 /// <summary>The child pressed the on-screen erase key.</summary>
 public sealed record LetterErased : HeardEvent;

@@ -40,23 +40,33 @@ public sealed class KokoroVoice : ISpeechVoice, IDisposable
         if (unknownWords.Count > 0)
             throw new NotSupportedException($"Kokoro doesn't know: {string.Join(", ", unknownWords)}");
 
-        return Task.Run(() =>
-        {
-            var audio = _engine.Value.Generate(request.Text, request.Speed, speaker);
-            try
-            {
-                return new AudioClip(audio.Samples, audio.SampleRate);
-            }
-            finally
-            {
-                audio.Dispose(); // not IDisposable, but owns native memory
-            }
-        }, cancellationToken);
+        return Task.Run(() => LoneLetterSpeech.IsLoneLetter(request.Text)
+            ? SynthesizeLoneLetter(request, speaker)
+            : Synthesize(request.Text, request.Speed, speaker), cancellationToken);
     }
 
     public void Dispose()
     {
         if (_engine.IsValueCreated) _engine.Value.Dispose();
+    }
+
+    private AudioClip SynthesizeLoneLetter(SpeechRequest request, int speaker)
+    {
+        var withLeadIn = Synthesize(LoneLetterSpeech.AddLeadIn(request.Text), request.Speed, speaker);
+        return withLeadIn with { Samples = LoneLetterSpeech.CutOffLeadIn(withLeadIn.Samples, withLeadIn.SampleRate) };
+    }
+
+    private AudioClip Synthesize(string text, float speed, int speaker)
+    {
+        var audio = _engine.Value.Generate(text, speed, speaker);
+        try
+        {
+            return new AudioClip(audio.Samples, audio.SampleRate);
+        }
+        finally
+        {
+            audio.Dispose(); // not IDisposable, but owns native memory
+        }
     }
 
     private string LexiconPath => Path.Combine(_modelFiles.KokoroFolder, "lexicon-us-en.txt");

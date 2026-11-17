@@ -33,7 +33,7 @@ public sealed class AppServices : IDisposable
     {
         var voices = new SpeechVoiceWithFallback(platform.Voices);
         var clipCache = new SpeechClipCache(voices, platform.Storage.SpeechClips);
-        var narrator = new Narrator(clipCache, platform.Speaker);
+        var narrator = new Narrator(clipCache, platform.Speaker, AppTuning.Default.Speech);
         var preloader = new SpeechPreloader(clipCache);
 
         var keyboard = new OnScreenKeyboardListener();

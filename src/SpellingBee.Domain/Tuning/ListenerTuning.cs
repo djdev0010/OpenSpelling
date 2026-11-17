@@ -9,13 +9,15 @@ namespace SpellingBee.Domain.Tuning;
 /// <param name="LongestSpeech">One stretch of speech is cut after this long.</param>
 /// <param name="AudioKeptBeforeSpeech">Extra audio kept before speech starts, so the start of a letter like G is not cut off.</param>
 /// <param name="AudioKeptAfterSpeech">Extra audio kept after speech ends, so the end of a letter like L is not cut off.</param>
+/// <param name="TimeBetweenGuessesWhileSpeaking">While the child keeps talking, the answer so far is re-read this often so letters appear on screen as they are said.</param>
 public sealed record ListenerTuning(
     double SpeechDetectionThreshold,
     TimeSpan PauseThatSplitsSpeech,
     TimeSpan ShortestSpeech,
     TimeSpan LongestSpeech,
     TimeSpan AudioKeptBeforeSpeech,
-    TimeSpan AudioKeptAfterSpeech)
+    TimeSpan AudioKeptAfterSpeech,
+    TimeSpan TimeBetweenGuessesWhileSpeaking)
 {
     public static ListenerTuning Default { get; } = new(
         SpeechDetectionThreshold: 0.5,
@@ -23,5 +25,6 @@ public sealed record ListenerTuning(
         ShortestSpeech: TimeSpan.FromSeconds(0.08),
         LongestSpeech: TimeSpan.FromSeconds(8),
         AudioKeptBeforeSpeech: TimeSpan.FromSeconds(0.4),
-        AudioKeptAfterSpeech: TimeSpan.FromSeconds(0.2));
+        AudioKeptAfterSpeech: TimeSpan.FromSeconds(0.2),
+        TimeBetweenGuessesWhileSpeaking: TimeSpan.FromSeconds(0.5));
 }

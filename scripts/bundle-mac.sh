@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds "dist/Spelling Bee.app": a self-contained macOS app with the models inside,
+# Builds "dist/Spell on Words.app": a self-contained macOS app with the models inside,
 # so it runs with no .NET install and no network. Run scripts/get-models.sh first.
 # Usage: scripts/bundle-mac.sh [osx-arm64|osx-x64]   (default: this Mac's architecture)
 set -euo pipefail
@@ -7,7 +7,7 @@ set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 RUNTIME="${1:-$([[ "$(uname -m)" == "arm64" ]] && echo osx-arm64 || echo osx-x64)}"
 VERSION="0.1.0"
-APP="$REPO/dist/Spelling Bee.app"
+APP="$REPO/dist/Spell on Words.app"
 PUBLISH="$REPO/dist/publish-$RUNTIME"
 
 for required in kokoro-v1_0-int8/model.int8.onnx parakeet-tdt-0.6b-v2-int8/encoder.int8.onnx vad/silero_vad.onnx; do
@@ -42,8 +42,8 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>CFBundleName</key>                 <string>Spelling Bee</string>
-  <key>CFBundleDisplayName</key>          <string>Spelling Bee</string>
+  <key>CFBundleName</key>                 <string>Spell on Words</string>
+  <key>CFBundleDisplayName</key>          <string>Spell on Words</string>
   <key>CFBundleIdentifier</key>           <string>app.spellingbee.desktop</string>
   <key>CFBundleVersion</key>              <string>$VERSION</string>
   <key>CFBundleShortVersionString</key>   <string>$VERSION</string>
@@ -54,7 +54,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>LSApplicationCategoryType</key>    <string>public.app-category.education</string>
   <key>NSHighResolutionCapable</key>      <true/>
   <key>NSMicrophoneUsageDescription</key>
-  <string>Spelling Bee listens while your child spells words out loud. Everything stays on this Mac.</string>
+  <string>Spell on Words listens while your child spells words out loud. Everything stays on this Mac.</string>
 </dict>
 </plist>
 PLIST

@@ -3,7 +3,7 @@ using SpellingBee.Domain.Speech;
 
 namespace SpellingBee.Application.PlayGame.Turns;
 
-/// <summary>"Listen and learn": reads each word, spells it, and says it again.</summary>
+/// <summary>"Listen and learn": says "Cat is spelled C… A… T." for each word.</summary>
 public sealed class WordTeacher(GameServices services, GameStateTracker state)
 {
     public async Task TeachWordsAsync(IReadOnlyList<string> words, CancellationToken cancellationToken)
@@ -14,7 +14,7 @@ public sealed class WordTeacher(GameServices services, GameStateTracker state)
         foreach (var word in words)
         {
             state.ShowWord(word, GamePhase.Teaching, revealed: true);
-            await services.Narrator.SpeakAsync(Phrases.ListenAndLearn(word), cancellationToken);
+            await services.Narrator.SpeakSpelledWordAsync(Phrases.ListenAndLearn(word), cancellationToken);
         }
 
         state.ShowWord(null, GamePhase.Teaching, revealed: false);

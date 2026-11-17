@@ -106,7 +106,13 @@ smile.stroke()
 
 NSGraphicsContext.restoreGraphicsState()
 
-let png = bitmap.representation(using: .png, properties: [:])!
+// The App Store rejects icons with a transparency channel, so copy the drawing onto an
+// opaque canvas before saving it.
+let opaque = CGContext(data: nil, width: Int(size), height: Int(size), bitsPerComponent: 8, bytesPerRow: 0,
+                       space: CGColorSpace(name: CGColorSpace.sRGB)!,
+                       bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue)!
+opaque.draw(bitmap.cgImage!, in: CGRect(x: 0, y: 0, width: size, height: size))
+let png = NSBitmapImageRep(cgImage: opaque.makeImage()!).representation(using: .png, properties: [:])!
 for path in outputPaths {
     try! png.write(to: repo.appendingPathComponent(path))
     print("Drew \(path)")

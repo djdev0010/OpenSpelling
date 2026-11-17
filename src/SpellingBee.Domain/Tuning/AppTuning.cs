@@ -5,7 +5,8 @@ namespace SpellingBee.Domain.Tuning;
 /// speech is detected. To fix a misheard letter, change a value in this folder and rebuild;
 /// see docs/TUNING.md.
 /// </summary>
-public sealed record AppTuning(LetterTuning Letters, GameTimings Timings, ListenerTuning Listening)
+public sealed record AppTuning(LetterTuning Letters, GameTimings Timings, ListenerTuning Listening, SpeechTimings Speech)
 {
-    public static AppTuning Default { get; } = new(LetterTuning.Default, GameTimings.Default, ListenerTuning.Default);
+    public static AppTuning Default { get; } =
+        new(LetterTuning.Default, GameTimings.Default, ListenerTuning.Default, SpeechTimings.Default);
 }

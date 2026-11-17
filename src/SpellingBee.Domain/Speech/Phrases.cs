@@ -1,5 +1,3 @@
-using SpellingBee.Domain.Letters;
-
 namespace SpellingBee.Domain.Speech;
 
 /// <summary>Everything the app says out loud, in one place.</summary>
@@ -18,29 +16,29 @@ public static class Phrases
     // One phrase, not two clips: Kokoro adds a stray syllable before a short word said on its own.
     public static string SpellPrompt(string word) => $"Please spell: {word}.";
 
-    public static string GoodTryWithCorrectSpelling(string word) =>
-        $"Good try. {Capitalize(word)} is spelled {LetterNames.SpellOutForSpeech(word)}.";
+    public static SpelledWordPhrase GoodTryWithCorrectSpelling(string word) =>
+        new($"Good try. {Capitalize(word)} is spelled", word);
 
-    public static string ListenAndLearn(string word) =>
-        $"{Capitalize(word)}. {LetterNames.SpellOutForSpeech(word)}. {Capitalize(word)}.";
+    public static SpelledWordPhrase ListenAndLearn(string word) => new($"{Capitalize(word)} is spelled", word);
 
     public static string PickCheer(Random random) => Cheers[random.Next(Cheers.Count)];
 
     /// <summary>
     /// Every phrase the game can say for this word list, for pre-generating audio, in the order a
-    /// game needs them: the short shared phrases and cheers (needed after the very first answer),
-    /// then each word's prompt and correction in list order, then "Listen and learn".
+    /// game needs them: the short shared phrases, cheers and letters (needed after the very first
+    /// answer), then each word's prompt and correction in list order, then "Listen and learn".
     /// </summary>
     public static IReadOnlyList<string> ListAllPhrasesFor(IReadOnlyList<string> words)
     {
         var phrases = new List<string>(Cheers) { NowYouTry, TryTheTrickyOnesAgain, AllSpelled, StillThere };
+        phrases.AddRange(words.SelectMany(word => ListenAndLearn(word).Letters));
         foreach (var word in words)
         {
             phrases.Add(SpellPrompt(word));
-            phrases.Add(GoodTryWithCorrectSpelling(word));
+            phrases.Add(GoodTryWithCorrectSpelling(word).LeadIn);
         }
         phrases.Add(ListenAndLearnIntro);
-        phrases.AddRange(words.Select(ListenAndLearn));
+        phrases.AddRange(words.Select(word => ListenAndLearn(word).LeadIn));
         return phrases.Distinct().ToList();
     }
 

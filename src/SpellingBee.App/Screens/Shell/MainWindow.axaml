@@ -3,7 +3,7 @@
         xmlns:shell="using:SpellingBee.App.Screens.Shell"
         x:Class="SpellingBee.App.Screens.Shell.MainWindow"
         x:DataType="shell:ShellViewModel"
-        Title="Spelling Bee"
+        Title="Spell on Words"
         Icon="avares://SpellingBee.App/Assets/AppIcon.png"
         Width="1180" Height="820" MinWidth="900" MinHeight="680"
         WindowStartupLocation="CenterScreen">

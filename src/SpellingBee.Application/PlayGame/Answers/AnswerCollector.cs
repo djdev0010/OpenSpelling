@@ -34,7 +34,7 @@ public sealed class AnswerCollector(
                 nextEvent = null;
                 if (reader.Current is ListeningStarted) display.ShowListeningStarted();
                 answer.ApplyHeardEvent(reader.Current);
-                if (reader.Current is AnswerHeardSoFar spoken) heardLog.AppendHeardAnswer(word, spoken.Text);
+                if (reader.Current is AnswerHeardSoFar { IsChildStillSpeaking: false } spoken) heardLog.AppendHeardAnswer(word, spoken.Text);
                 display.ShowLetters(answer.Letters);
             }
             return answer.ToResult();

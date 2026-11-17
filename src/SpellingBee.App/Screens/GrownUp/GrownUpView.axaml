@@ -67,6 +67,24 @@
               <CheckBox Content="Show ✓ / ✗ buttons so I can correct the microphone" IsChecked="{Binding ShowGrownUpOverrideButtons}" />
             </StackPanel>
           </Border>
+
+          <!-- Credits the licenses ask for (docs/THIRD_PARTY.md has the full list). -->
+          <Border Classes="settings-group">
+            <StackPanel Spacing="6">
+              <StackPanel.Styles>
+                <Style Selector="TextBlock">
+                  <Setter Property="TextWrapping" Value="Wrap" />
+                </Style>
+              </StackPanel.Styles>
+              <TextBlock Classes="section" Text="Credits" />
+              <TextBlock Classes="hint" Text="Hearing letters: NVIDIA Parakeet TDT 0.6B v2, CC BY 4.0. NVIDIA does not endorse this app." />
+              <TextBlock Classes="hint" Text="Voice: Kokoro-82M, Apache 2.0." />
+              <TextBlock Classes="hint" Text="Speech engine: sherpa-onnx (Apache 2.0) with ONNX Runtime and Silero VAD (MIT)." />
+              <TextBlock Classes="hint" Text="Font: Andika by SIL International, SIL Open Font License 1.1." />
+              <TextBlock Classes="hint" Text="Icons: Material Design Icons by Pictogrammers, Apache 2.0." />
+              <TextBlock Classes="hint" Text="Built with Avalonia and CommunityToolkit.Mvvm (MIT)." />
+            </StackPanel>
+          </Border>
         </StackPanel>
       </ScrollViewer>
     </Grid>
