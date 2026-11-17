@@ -34,7 +34,7 @@ outer layer.
 | Domain | `SpellingBee.Domain` | nothing | files, clock, OS, any other project |
 | Application | `SpellingBee.Application` | Domain | files, clock, OS, Infrastructure, App |
 | Infrastructure | `SpellingBee.Infrastructure.<Technology>` | Domain, `Application.Ports` | other Infrastructure projects, App, `Application.Shared` |
-| App | `SpellingBee.App` (shared screens) | Domain, use cases | Infrastructure, `Application.Shared` (except in `Composition/`) |
+| App | `SpellingBee.App` (shared screens) | Domain, services | Infrastructure, `Application.Shared` (except in `Composition/`) |
 | Platform head | `SpellingBee.App.Desktop`, `SpellingBee.App.iOS` | everything | — |
 
 Because the inner layers never touch the outside world, you can test them without a
@@ -50,11 +50,11 @@ platform project starts it and supplies that device's adapters as a `PlatformAda
 - `SpellingBee.App.iOS`: the iPad (sherpa-onnx, AVFoundation audio from `Infrastructure.iOS`, files).
 
 Only the heads name Infrastructure projects. Adding a platform means adding a head and any
-missing adapters, not changing screens or use cases.
+missing adapters, not changing screens or services.
 
 > [!NOTE]
 > If you know the *Clean Architecture* book, the terms map like this: Domain holds the
-> entities, Application holds the use cases and their ports (gateway interfaces),
+> entities, Application holds the use cases (our `XxxService` classes) and their ports (gateway interfaces),
 > Infrastructure holds the gateways and drivers, and `App/Composition` is "Main".
 
 ## Where each kind of type goes
@@ -65,15 +65,15 @@ Find the row that describes your type. There is exactly one answer.
 |---|---|---|---|
 | is data or a rule about spelling that doesn't do I/O | Domain type | `Domain/<Concept>/` | `SpellingList`, `AnswerMatcher`, `GameProgress` |
 | is a number or table someone might tune | Tuning | `Domain/Tuning/` | `LetterTuning`, `GameTimings` |
-| is something a user does (start, play, choose a list) | Use case | `Application/<Goal>/<Goal>UseCase.cs` | `PlayGame/PlayGameUseCase.cs` |
-| is a step inside one use case | Use case part | `Application/<Goal>/` or a sub-folder | `PlayGame/Turns/SpellingTurn.cs` |
-| is the input or output of one use case | Use case model | `Application/<Goal>/` | `ChooseSpellingList/SpellingListChoices.cs` |
+| is something a user does (start, play, choose a list) | Service | `Application/<Goal>/<Goal>Service.cs` | `PlayGame/PlayGameService.cs` |
+| is a step inside one service | Service part | `Application/<Goal>/` or a sub-folder | `PlayGame/Turns/SpellingTurn.cs` |
+| is the input or output of one service | Service model | `Application/<Goal>/` | `ChooseSpellingList/SpellingListChoices.cs` |
 | is an interface for something outside (voice, mic, disk) | Port | `Application/Ports/<Capability>/` | `Ports/Speech/ISpeechVoice.cs` |
 | is data passed through a port | Port model | next to its port | `Ports/Listening/HeardEvent.cs` |
-| is logic two or more use cases need | Shared | `Application/Shared/<Capability>/` | `Shared/Speech/Narrator.cs` |
+| is logic two or more services need | Shared | `Application/Shared/<Capability>/` | `Shared/Speech/Narrator.cs` |
 | implements a port with a library or OS API | Infrastructure | `Infrastructure.<Technology>/<Capability>/` | `Infrastructure.Sherpa/Speech/KokoroVoice.cs` |
 | shows something on screen | View + ViewModel | `App/Screens/<Screen>/` | `Screens/Game/GameViewModel.cs` |
-| builds use cases from the platform's adapters | Composition | `App/Composition/AppServices.cs` | — |
+| builds services from the platform's adapters | Composition | `App/Composition/AppServices.cs` | — |
 | creates one platform's adapters | Platform head | `App.<Platform>/Composition/` | `App.Desktop/Composition/MacPlatformAdapters.cs` |
 
 > [!NOTE]
@@ -95,11 +95,11 @@ port, its shared logic and its adapters are.
 | Storage | `Ports/Storage/ISettingsStorage`, `IProgressStorage`, `ISpeechClipStore`, `IHeardAnswerLog` | — | `Infrastructure.Files/Storage` |
 | Settings | — | `Shared/Settings` (current settings, applying them) | — |
 
-## The use cases
+## The services
 
 Each user goal has one folder with one entry-point class. Screens call only these classes.
 
-| Use case | Who | What it does |
+| Service | Who | What it does |
 |---|---|---|
 | `StartApp` | app | Loads settings, prepares the voice, asks for the microphone. |
 | `ChooseSpellingList` | child | Lists the saved lists and remembers the one picked. |
@@ -112,25 +112,25 @@ Each user goal has one folder with one entry-point class. Screens call only thes
 When the child taps a list on the list picker:
 
 1. `ChooseWordsView` runs a command on `ChooseWordsViewModel` (App layer).
-2. The ViewModel calls `ChooseSpellingListUseCase.ChooseSpellingListAsync` (Application layer).
-3. The use case changes `AppSettings` (Domain layer) and saves it through
+2. The ViewModel calls `ChooseSpellingListService.ChooseSpellingListAsync` (Application layer).
+3. The service changes `AppSettings` (Domain layer) and saves it through
    `ISettingsStorage` (a port).
 4. At runtime, the port is `JsonFileSettingsStorage` (Infrastructure.Files), which writes the JSON
    file. `AppServices` connected them at startup.
-5. Then `PlayGameUseCase.PlayGameAsync` runs the game and raises a `GameSnapshot` on every
+5. Then `PlayGameService.PlayGameAsync` runs the game and raises a `GameSnapshot` on every
    change. The ViewModel turns each snapshot into what the screen shows.
 
 ## Add a feature
 
 This example adds a "Practice one word" goal.
 
-1. Create `src/SpellingBee.Application/PracticeWord/PracticeWordUseCase.cs`:
+1. Create `src/SpellingBee.Application/PracticeWord/PracticeWordService.cs`:
 
    ```csharp
    namespace SpellingBee.Application.PracticeWord;
 
-   /// <summary>Use case: the child practices a single word until it is right.</summary>
-   public sealed class PracticeWordUseCase
+   /// <summary>The child practices a single word until it is right.</summary>
+   public sealed class PracticeWordService
    {
        // Take ports (ISpeechVoice, ISpellingListener, …) or Shared classes in the constructor.
    }
@@ -142,7 +142,7 @@ This example adds a "Practice one word" goal.
 3. Create it in `App/Composition/AppServices.cs` and expose it as a property. If you added a
    port, also create its adapter in each platform head (`MacPlatformAdapters` and `IPadPlatformAdapters`).
 4. Add `Screens/PracticeWord/PracticeWordView.axaml` and `PracticeWordViewModel.cs`. Have the
-   ViewModel take `PracticeWordUseCase` in its constructor.
+   ViewModel take `PracticeWordService` in its constructor.
 5. Check the rules:
 
    ```bash
@@ -150,8 +150,8 @@ This example adds a "Practice one word" goal.
    ```
 
 > [!TIP]
-> If a ViewModel seems to need a `Shared` class or an adapter, the use case is missing a
-> method. Add that method to the use case instead.
+> If a ViewModel seems to need a `Shared` class or an adapter, the service is missing a
+> method. Add that method to the service instead.
 
 ## Next steps
 

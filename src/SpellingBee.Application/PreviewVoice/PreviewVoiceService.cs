@@ -5,13 +5,13 @@ using SpellingBee.Domain.Speech;
 
 namespace SpellingBee.Application.PreviewVoice;
 
-/// <summary>Use case: a grown-up hears a voice and speed before choosing it.</summary>
-public sealed class PreviewVoiceUseCase
+/// <summary>A grown-up hears a voice and speed before choosing it.</summary>
+public sealed class PreviewVoiceService
 {
     private readonly ISpeechVoice _voices;
     private readonly Narrator _narrator;
 
-    public PreviewVoiceUseCase(ISpeechVoice voices, Narrator narrator)
+    public PreviewVoiceService(ISpeechVoice voices, Narrator narrator)
     {
         _voices = voices;
         _narrator = narrator;

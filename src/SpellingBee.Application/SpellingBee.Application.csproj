@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- Use cases (vertical slices) and the ports they need. References only the domain. -->
+  <!-- Services (vertical slices) and the ports they need. References only the domain. -->
   <ItemGroup>
     <ProjectReference Include="../SpellingBee.Domain/SpellingBee.Domain.csproj" />
   </ItemGroup>

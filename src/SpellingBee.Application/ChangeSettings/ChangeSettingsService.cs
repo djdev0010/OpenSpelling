@@ -6,16 +6,16 @@ using SpellingBee.Domain.Settings;
 namespace SpellingBee.Application.ChangeSettings;
 
 /// <summary>
-/// Use case: a grown-up edits the spelling lists, voice and options, and saves them.
+/// A grown-up edits the spelling lists, voice and options, and saves them.
 /// Saved settings take effect at once (voice, keyboard or microphone, speech pre-generation).
 /// </summary>
-public sealed class ChangeSettingsUseCase
+public sealed class ChangeSettingsService
 {
     private readonly SettingsStore _settings;
     private readonly SettingsApplier _settingsApplier;
     private readonly SpeechPreloader _preloader;
 
-    public ChangeSettingsUseCase(SettingsStore settings, SettingsApplier settingsApplier, SpeechPreloader preloader)
+    public ChangeSettingsService(SettingsStore settings, SettingsApplier settingsApplier, SpeechPreloader preloader)
     {
         _settings = settings;
         _settingsApplier = settingsApplier;

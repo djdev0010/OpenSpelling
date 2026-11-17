@@ -13,7 +13,7 @@ Copilot, Cursor, or any other).
 4. Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) to know where code goes. Domain and
    Application never do I/O or reference UI or native libraries. Every interface goes in
    `src/SpellingBee.Application/Ports/`, and platform code goes in an Infrastructure project.
-   Screens call only `XxxUseCase` classes.
+   Screens call only `XxxService` classes.
 5. No network calls at runtime, no telemetry, open-source dependencies only.
 6. If a rule gets in the way of readable code, don't silently break it. Propose a change
    to docs/CODE_STANDARDS.md.

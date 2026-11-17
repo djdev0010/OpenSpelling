@@ -11,11 +11,11 @@ namespace SpellingBee.App.Screens.GrownUp;
 /// <summary>The grown-up area: spelling lists, voice, speed, and options. Nothing is saved until Save.</summary>
 public sealed partial class GrownUpViewModel : ObservableObject
 {
-    private readonly ChangeSettingsUseCase _changeSettings;
-    private readonly PlayGameUseCase _playGame;
+    private readonly ChangeSettingsService _changeSettings;
+    private readonly PlayGameService _playGame;
 
     public GrownUpViewModel(
-        ChangeSettingsUseCase changeSettings, PlayGameUseCase playGame, VoicePickerViewModel voicePicker, IUiDispatcher ui)
+        ChangeSettingsService changeSettings, PlayGameService playGame, VoicePickerViewModel voicePicker, IUiDispatcher ui)
     {
         _changeSettings = changeSettings;
         _playGame = playGame;

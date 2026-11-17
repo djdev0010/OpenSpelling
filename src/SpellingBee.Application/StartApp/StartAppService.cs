@@ -4,16 +4,16 @@ using SpellingBee.Application.Shared.Settings;
 namespace SpellingBee.Application.StartApp;
 
 /// <summary>
-/// Use case: the app opens. Loads the saved settings, then loads the voice and asks for the
+/// The app opens. Loads the saved settings, then loads the voice and asks for the
 /// microphone while the start menu is already showing.
 /// </summary>
-public sealed class StartAppUseCase
+public sealed class StartAppService
 {
     private readonly SettingsStore _settings;
     private readonly ISpeechVoice _voice;
     private readonly SettingsApplier _settingsApplier;
 
-    public StartAppUseCase(SettingsStore settings, ISpeechVoice voice, SettingsApplier settingsApplier)
+    public StartAppService(SettingsStore settings, ISpeechVoice voice, SettingsApplier settingsApplier)
     {
         _settings = settings;
         _voice = voice;

@@ -94,13 +94,13 @@ The iPad app uses the same screens, voice and recognizer as the Mac app.
 
 ```
 src/SpellingBee.Domain                    words, letters, progress, settings, tuning (pure .NET)
-src/SpellingBee.Application               use cases (StartApp, ChooseSpellingList, PlayGame, ...) + Ports
+src/SpellingBee.Application               services (StartApp, ChooseSpellingList, PlayGame, ...) + Ports
 src/SpellingBee.Infrastructure.Files      settings, progress, speech cache and log on disk
 src/SpellingBee.Infrastructure.Sherpa     Kokoro voice + Parakeet listener (sherpa-onnx)
 src/SpellingBee.Infrastructure.PortAudio  microphone and speaker
 src/SpellingBee.Infrastructure.MacOS      mic permission, system voice fallback
 src/SpellingBee.Infrastructure.iOS        iPad speaker, microphone and mic permission (AVFoundation)
-src/SpellingBee.App                       shared Avalonia screens + composition of use cases
+src/SpellingBee.App                       shared Avalonia screens + composition of services
 src/SpellingBee.App.Desktop               Mac app: starts the shared app with the Mac adapters
 src/SpellingBee.App.iOS                   iPad app: starts the shared app with the iPad adapters
 ```

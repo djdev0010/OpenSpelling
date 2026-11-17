@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- The shared app: screens, styles and the composition of use cases. Platform projects
+  <!-- The shared app: screens, styles and the composition of services. Platform projects
        (SpellingBee.App.Desktop, SpellingBee.App.iOS) start it and supply the adapters. -->
   <PropertyGroup>
     <RootNamespace>SpellingBee.App</RootNamespace>

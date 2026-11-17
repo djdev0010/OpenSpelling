@@ -14,10 +14,10 @@ with diagrams, a "where does it go" table and a walkthrough; read it first. The 
   `Process` or `DateTime.Now`. They reach the outside only through a port. Time comes from
   `TimeProvider`.
 - **Infrastructure projects see only `Domain` and `Application.Ports`.** They never reference each other.
-- **Screens call only use cases.** A ViewModel may use `Domain`, `XxxUseCase` classes and
+- **Screens call only services.** A ViewModel may use `Domain`, `XxxService` classes and
   their models, and port records (for example `VoiceOption`). It never uses `Application.Shared`
   or an adapter.
-- **One composition root.** Use cases are built in `App/Composition/AppServices.cs`; each
+- **One composition root.** Services are built in `App/Composition/AppServices.cs`; each
   platform head (`App.Desktop`, `App.iOS`) builds only its adapters. The heads are the only
   projects that may name Infrastructure. No service locators, and no `static` singletons
   that hold state.
@@ -38,14 +38,14 @@ SpellingBee.slnx
     │   └── Tuning/                    Every adjustable value (see TUNING.md)
     │
     ├── SpellingBee.Application/          What the app does.
-    │   ├── StartApp/                  StartAppUseCase
-    │   ├── ChooseSpellingList/        ChooseSpellingListUseCase + SpellingListChoices
-    │   ├── PlayGame/                  PlayGameUseCase + Answers/, Turns/, State/
-    │   ├── ChangeSettings/            ChangeSettingsUseCase
-    │   ├── PreviewVoice/              PreviewVoiceUseCase
+    │   ├── StartApp/                  StartAppService
+    │   ├── ChooseSpellingList/        ChooseSpellingListService + SpellingListChoices
+    │   ├── PlayGame/                  PlayGameService + Answers/, Turns/, State/
+    │   ├── ChangeSettings/            ChangeSettingsService
+    │   ├── PreviewVoice/              PreviewVoiceService
     │   ├── Ports/                     EVERY interface to the outside, with the data it carries
     │   │   ├── Speech/  Listening/  Sound/  Microphone/  Storage/
-    │   └── Shared/                    Logic used by 2+ use cases (no interfaces)
+    │   └── Shared/                    Logic used by 2+ services (no interfaces)
     │       ├── Speech/  Listening/  Sound/  Settings/
     │
     ├── SpellingBee.Infrastructure.Files/    Ports/Storage → JSON and WAV files
@@ -55,7 +55,7 @@ SpellingBee.slnx
     ├── SpellingBee.Infrastructure.MacOS/    Ports/Speech (`say`), Ports/Microphone (permission)
     │
     ├── SpellingBee.App/               Shared Avalonia app (Mac and iPad)
-    │   ├── Composition/               AppServices: builds use cases from PlatformAdapters
+    │   ├── Composition/               AppServices: builds services from PlatformAdapters
     │   ├── Screens/                   Home/, Game/, GrownUp/, Shell/: View + ViewModel pairs
     │   ├── Shared/                    Reusable controls, IUiDispatcher
     │   ├── Styles/                    Colors, fonts, control themes (.axaml)
@@ -66,8 +66,8 @@ SpellingBee.slnx
 
 **How folders are cut.**
 
-- **Use-case folders are named for a user's goal** (`PlayGame`), and each one holds exactly one
-  `<Goal>UseCase.cs`.
+- **Service folders are named for a user's goal** (`PlayGame`), and each one holds exactly one
+  `<Goal>Service.cs`.
 - **Ports, Shared and adapter folders are named for a capability** (Speech, Listening, Sound,
   Microphone, Storage). The same capability name is used in every layer, so an interface in
   `Ports/Speech` is implemented in `Infrastructure.*/Speech`.
@@ -81,10 +81,10 @@ Domain and Application don't change.
 | If the code… | It belongs in |
 |---|---|
 | is spelling data or a pure rule | `Domain/<Concept>` |
-| is something a user does | `Application/<Goal>/<Goal>UseCase.cs` |
-| is a step or a model of one use case | that use case's folder |
+| is something a user does | `Application/<Goal>/<Goal>Service.cs` |
+| is a step or a model of one service | that service's folder |
 | is an interface to the outside world | `Application/Ports/<Capability>` |
-| is logic two or more use cases need | `Application/Shared/<Capability>` |
+| is logic two or more services need | `Application/Shared/<Capability>` |
 | does it with a specific library or OS API | `Infrastructure.<Technology>/<Capability>` |
 | turns state into something on screen | a ViewModel in `App/Screens/<Screen>` |
 | is only how something looks | `.axaml` in the same screen folder, or `App/Styles` |
@@ -143,7 +143,7 @@ not by line count.
     (e.g. the press-and-hold animation) — never game logic.
   - ViewModels never reference Avalonia controls or Views. They may use
     Avalonia's dispatcher only through `IUiDispatcher`.
-- **The game is a state machine** in `PlayGameUseCase`. It is driven by
+- **The game is a state machine** in `PlayGameService`. It is driven by
   `async` methods and exposes state through events/records the ViewModel reads.
 - **Records for data, classes for behavior.** Data types are immutable
   `record`s. Classes are `sealed` unless designed for inheritance.
@@ -190,7 +190,8 @@ from its call site, without opening it.
 ### Everything else
 
 - Types are nouns that say their one job: `AnswerCollector`, `SpeechClipCache`.
-  No `Manager`, `Helper`, `Util`, `Service` suffixes.
+  No `Manager`, `Helper` or `Util` suffixes. `Service` is reserved for the one entry point
+  of each goal folder (`Application/PlayGame/PlayGameService`); nothing else uses it.
 - .NET casing: `PascalCase` types/members, `_camelCase` private fields,
   `camelCase` locals, `I` prefix on interfaces, `Async` suffix on async methods.
 
@@ -223,7 +224,7 @@ from its call site, without opening it.
 
 - `dotnet run scripts/CheckStandards.cs` checks the layers (project references and
   namespaces each project may use), no I/O in Domain and Application, interfaces only in
-  Ports, one `<Goal>UseCase` per use-case folder, namespaces that match folders, size
+  Ports, one `<Goal>Service` per service folder, namespaces that match folders, size
   limits, one type per file, parameter counts, nesting depth, vague names and banned folders.
   It exits non-zero on any violation.
 - `EnforceCodeStyleInBuild` makes `.editorconfig` naming rules build warnings.

@@ -11,7 +11,7 @@ namespace SpellingBee.App.Screens.Shell;
 /// <summary>Switches between the start menu, the list picker, the game and the grown-up area, and starts the app up.</summary>
 public sealed partial class ShellViewModel : ObservableObject
 {
-    private readonly StartAppUseCase _startApp;
+    private readonly StartAppService _startApp;
     private readonly HomeViewModel _home;
     private readonly ChooseWordsViewModel _chooseWords;
     private readonly GameViewModel _game;

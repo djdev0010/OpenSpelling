@@ -12,7 +12,7 @@ using SpellingBee.Domain.Tuning;
 namespace SpellingBee.App.Composition;
 
 /// <summary>
-/// The composition root ("Main" in Clean Architecture): builds the use cases once from the
+/// The composition root ("Main" in Clean Architecture): builds the services once from the
 /// platform's adapters and hands them to the screens. The adapters themselves are created by
 /// the platform project, so the shared app never names an Infrastructure project.
 /// </summary>
@@ -22,11 +22,11 @@ public sealed class AppServices : IDisposable
 
     private AppServices() { }
 
-    public required StartAppUseCase StartApp { get; init; }
-    public required ChooseSpellingListUseCase ChooseSpellingList { get; init; }
-    public required PlayGameUseCase PlayGame { get; init; }
-    public required ChangeSettingsUseCase ChangeSettings { get; init; }
-    public required PreviewVoiceUseCase PreviewVoice { get; init; }
+    public required StartAppService StartApp { get; init; }
+    public required ChooseSpellingListService ChooseSpellingList { get; init; }
+    public required PlayGameService PlayGame { get; init; }
+    public required ChangeSettingsService ChangeSettings { get; init; }
+    public required PreviewVoiceService PreviewVoice { get; init; }
     public required IUiDispatcher Ui { get; init; }
 
     public static AppServices Create(PlatformAdapters platform)
@@ -44,11 +44,11 @@ public sealed class AppServices : IDisposable
         var gameServices = new GameServices(narrator, listener, TimeProvider.System, AppTuning.Default, Random.Shared);
         return new AppServices
         {
-            StartApp = new StartAppUseCase(settings, voices, settingsApplier),
-            ChooseSpellingList = new ChooseSpellingListUseCase(settings),
-            PlayGame = new PlayGameUseCase(gameServices, settings, keyboard, platform.Storage.Progress, platform.Storage.HeardAnswers),
-            ChangeSettings = new ChangeSettingsUseCase(settings, settingsApplier, preloader),
-            PreviewVoice = new PreviewVoiceUseCase(voices, narrator),
+            StartApp = new StartAppService(settings, voices, settingsApplier),
+            ChooseSpellingList = new ChooseSpellingListService(settings),
+            PlayGame = new PlayGameService(gameServices, settings, keyboard, platform.Storage.Progress, platform.Storage.HeardAnswers),
+            ChangeSettings = new ChangeSettingsService(settings, settingsApplier, preloader),
+            PreviewVoice = new PreviewVoiceService(voices, narrator),
             Ui = new AvaloniaUiDispatcher(),
             _ownedEngines = platform.OwnedEngines,
         };

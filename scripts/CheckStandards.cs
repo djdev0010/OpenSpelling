@@ -15,7 +15,7 @@ const int MaxParameters = 5;
 const int MaxNestingDepth = 3;
 
 string[] vagueMethodNames = ["Handle", "Process", "Manage", "DoWork", "Run", "Execute", "Update", "Check", "Helper", "Flush", "Evaluate", "Do", "Go", "Clean", "Next", "Data"];
-string[] vagueTypeSuffixes = ["Manager", "Helper", "Helpers", "Util", "Utils", "Utility", "Service"];
+string[] vagueTypeSuffixes = ["Manager", "Helper", "Helpers", "Util", "Utils", "Utility"];
 string[] bannedFolders = ["Models", "Services", "Helpers", "Utils", "Interfaces"];
 
 var repoRoot = FindRepoRoot();
@@ -30,7 +30,7 @@ foreach (var file in files)
     CheckArchitecture(file);
 }
 CheckProjectReferences();
-CheckEveryUseCaseFolderHasItsUseCase();
+CheckEveryGoalFolderHasItsService();
 
 if (problems.Count == 0)
 {
@@ -139,7 +139,8 @@ void CheckNoInputOutput(string file, CompilationUnitSyntax root)
     }
 }
 
-// One home per kind of type: interfaces in Ports, "XxxUseCase" only as the entry point of its folder.
+// One home per kind of type: interfaces in Ports, "XxxService" only as the entry point of its goal folder
+// (anywhere else the suffix is vague, §5).
 void CheckTypePlacement(string file, string project, string[] folders, CompilationUnitSyntax root)
 {
     var top = folders.FirstOrDefault();
@@ -149,22 +150,22 @@ void CheckTypePlacement(string file, string project, string[] folders, Compilati
         bool isInterface = type is InterfaceDeclarationSyntax;
         if (isInterface && !(project == "SpellingBee.Application" && top == "Ports") && !(project == "SpellingBee.App" && top == "Shared"))
             problems.Add($"{Relative(file)}: interface {name} belongs in SpellingBee.Application/Ports/ (§2)");
-        if (name.EndsWith("UseCase") && !(project == "SpellingBee.Application" && folders.Length == 1 && name == top + "UseCase"))
-            problems.Add($"{Relative(file)}: {name} must be SpellingBee.Application/<Name>/<Name>UseCase.cs (§2)");
+        if (name.EndsWith("Service") && !(project == "SpellingBee.Application" && folders.Length == 1 && name == top + "Service"))
+            problems.Add($"{Relative(file)}: {name} must be SpellingBee.Application/<Name>/<Name>Service.cs (§2, §5)");
         if (project == "SpellingBee.Application" && top == "Ports" && type is ClassDeclarationSyntax c && !c.Modifiers.Any(SyntaxKind.StaticKeyword))
-            problems.Add($"{Relative(file)}: Ports holds only interfaces and the data they carry; move class {name} to a use case or Shared (§2)");
+            problems.Add($"{Relative(file)}: Ports holds only interfaces and the data they carry; move class {name} to a service folder or Shared (§2)");
     }
 }
 
-void CheckEveryUseCaseFolderHasItsUseCase()
+void CheckEveryGoalFolderHasItsService()
 {
-    var useCases = Path.Combine(repoRoot, "src", "SpellingBee.Application");
-    if (!Directory.Exists(useCases)) return;
-    foreach (var folder in Directory.GetDirectories(useCases).Select(Path.GetFileName))
+    var goalFolders = Path.Combine(repoRoot, "src", "SpellingBee.Application");
+    if (!Directory.Exists(goalFolders)) return;
+    foreach (var folder in Directory.GetDirectories(goalFolders).Select(Path.GetFileName))
     {
         if (folder is null or "Ports" or "Shared" or "obj" or "bin") continue;
-        if (!File.Exists(Path.Combine(useCases, folder, folder + "UseCase.cs")))
-            problems.Add($"src/SpellingBee.Application/{folder}/: every use-case folder has {folder}UseCase.cs (§2)");
+        if (!File.Exists(Path.Combine(goalFolders, folder, folder + "Service.cs")))
+            problems.Add($"src/SpellingBee.Application/{folder}/: every goal folder has {folder}Service.cs (§2)");
     }
 }
 

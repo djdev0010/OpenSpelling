@@ -11,10 +11,10 @@ using SpellingBee.Domain.Speech;
 namespace SpellingBee.Application.PlayGame;
 
 /// <summary>
-/// Use case: the child plays the chosen spelling list. Optional "Listen and learn", then rounds
+/// The child plays the chosen spelling list. Optional "Listen and learn", then rounds
 /// of spelling until every word is right, then the finale. Progress is saved after every word.
 /// </summary>
-public sealed class PlayGameUseCase
+public sealed class PlayGameService
 {
     private readonly GameServices _services;
     private readonly SettingsStore _settings;
@@ -24,7 +24,7 @@ public sealed class PlayGameUseCase
     private readonly SpellingTurn _turn;
     private readonly WordTeacher _teacher;
 
-    public PlayGameUseCase(
+    public PlayGameService(
         GameServices services, SettingsStore settings, OnScreenKeyboardListener keyboard,
         IProgressStorage storage, IHeardAnswerLog heardLog)
     {

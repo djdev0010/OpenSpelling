@@ -3,12 +3,12 @@ using SpellingBee.Domain.Settings;
 
 namespace SpellingBee.Application.ChooseSpellingList;
 
-/// <summary>Use case: the child picks which saved spelling list to play before each game.</summary>
-public sealed class ChooseSpellingListUseCase
+/// <summary>The child picks which saved spelling list to play before each game.</summary>
+public sealed class ChooseSpellingListService
 {
     private readonly SettingsStore _settings;
 
-    public ChooseSpellingListUseCase(SettingsStore settings)
+    public ChooseSpellingListService(SettingsStore settings)
     {
         _settings = settings;
         _settings.SettingsChanged += saved => ChoicesChanged?.Invoke(ToChoices(saved));

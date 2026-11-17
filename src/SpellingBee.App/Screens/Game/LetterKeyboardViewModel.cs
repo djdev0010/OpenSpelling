@@ -6,9 +6,9 @@ namespace SpellingBee.App.Screens.Game;
 /// <summary>The big A–Z keyboard used when the microphone can't be used.</summary>
 public sealed partial class LetterKeyboardViewModel
 {
-    private readonly PlayGameUseCase _playGame;
+    private readonly PlayGameService _playGame;
 
-    public LetterKeyboardViewModel(PlayGameUseCase playGame)
+    public LetterKeyboardViewModel(PlayGameService playGame)
     {
         _playGame = playGame;
         Keys = Enumerable.Range('A', 26)

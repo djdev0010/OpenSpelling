@@ -7,7 +7,6 @@
     <Project Path="src/SpellingBee.Infrastructure.PortAudio/SpellingBee.Infrastructure.PortAudio.csproj" />
     <Project Path="src/SpellingBee.Infrastructure.iOS/SpellingBee.Infrastructure.iOS.csproj" />
     <Project Path="src/SpellingBee.Infrastructure.MacOS/SpellingBee.Infrastructure.MacOS.csproj" />
-    <Project Path="src/SpellingBee.Infrastructure.iOS/SpellingBee.Infrastructure.iOS.csproj" />
     <Project Path="src/SpellingBee.App/SpellingBee.App.csproj" />
     <Project Path="src/SpellingBee.App.Desktop/SpellingBee.App.Desktop.csproj" />
     <Project Path="src/SpellingBee.App.iOS/SpellingBee.App.iOS.csproj" />

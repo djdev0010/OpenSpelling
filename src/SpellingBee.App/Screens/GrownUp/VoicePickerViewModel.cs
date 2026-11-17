@@ -9,9 +9,9 @@ namespace SpellingBee.App.Screens.GrownUp;
 /// <summary>Voice and speed choice, with a button to hear the choice before saving it.</summary>
 public sealed partial class VoicePickerViewModel : ObservableObject
 {
-    private readonly PreviewVoiceUseCase _previewVoice;
+    private readonly PreviewVoiceService _previewVoice;
 
-    public VoicePickerViewModel(PreviewVoiceUseCase previewVoice)
+    public VoicePickerViewModel(PreviewVoiceService previewVoice)
     {
         _previewVoice = previewVoice;
         Voices = previewVoice.ListVoices();

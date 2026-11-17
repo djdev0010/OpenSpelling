@@ -12,11 +12,11 @@ namespace SpellingBee.App.Screens.Game;
 /// </summary>
 public sealed partial class GameViewModel : ObservableObject
 {
-    private readonly PlayGameUseCase _playGame;
+    private readonly PlayGameService _playGame;
     private readonly IUiDispatcher _ui;
     private CancellationTokenSource? _runningGame;
 
-    public GameViewModel(PlayGameUseCase playGame, IUiDispatcher ui)
+    public GameViewModel(PlayGameService playGame, IUiDispatcher ui)
     {
         _playGame = playGame;
         _ui = ui;

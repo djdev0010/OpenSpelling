@@ -12,10 +12,10 @@ namespace SpellingBee.App.Screens.Home;
 /// </summary>
 public sealed partial class ChooseWordsViewModel : ObservableObject
 {
-    private readonly ChooseSpellingListUseCase _chooseSpellingList;
+    private readonly ChooseSpellingListService _chooseSpellingList;
     private bool _teachWordsFirst;
 
-    public ChooseWordsViewModel(ChooseSpellingListUseCase chooseSpellingList, IUiDispatcher ui)
+    public ChooseWordsViewModel(ChooseSpellingListService chooseSpellingList, IUiDispatcher ui)
     {
         _chooseSpellingList = chooseSpellingList;
         _chooseSpellingList.ChoicesChanged += choices => ui.RunOnUiThread(() => ShowSpellingLists(choices));
