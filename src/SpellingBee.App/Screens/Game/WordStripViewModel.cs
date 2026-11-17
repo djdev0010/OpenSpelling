@@ -4,7 +4,7 @@ using SpellingBee.Domain.Progress;
 
 namespace SpellingBee.App.Screens.Game;
 
-/// <summary>The row of word tiles across the top of the game screen.</summary>
+/// <summary>The row of progress badges across the top of the game screen, one per word.</summary>
 public sealed class WordStripViewModel
 {
     public ObservableCollection<WordTileViewModel> Tiles { get; } = [];
@@ -21,8 +21,7 @@ public sealed class WordStripViewModel
             Tiles[i].ShowState(
                 isCurrent,
                 isSpelledRight: words[i].State == WordState.SpelledRight,
-                isMissed: words[i].State == WordState.Missed,
-                isRevealed: isCurrent && snapshot.IsCurrentWordRevealed);
+                isMissed: words[i].State == WordState.Missed);
         }
     }
 

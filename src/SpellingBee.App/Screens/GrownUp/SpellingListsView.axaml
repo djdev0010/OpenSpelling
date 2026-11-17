@@ -5,7 +5,7 @@
              x:DataType="grownUp:SpellingListsViewModel">
   <DockPanel>
     <!-- Which saved list to play, plus add and delete. -->
-    <TextBlock DockPanel.Dock="Top" Classes="label" Text="Spelling list to play" />
+    <TextBlock DockPanel.Dock="Top" Classes="label" Text="List to play" Margin="0,0,0,6" />
     <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto,Auto">
       <ComboBox ItemsSource="{Binding Lists}" SelectedItem="{Binding SelectedList}"
                 HorizontalAlignment="Stretch" FontSize="18">
@@ -21,10 +21,13 @@
 
     <!-- The chosen list's name and words. -->
     <TextBlock DockPanel.Dock="Top" Classes="label" Text="List name" />
-    <TextBox DockPanel.Dock="Top" Text="{Binding SelectedList.Name}" FontSize="18" />
+    <TextBox DockPanel.Dock="Top" Text="{Binding SelectedList.Name}" FontSize="18"
+             TextInputOptions.ReturnKeyType="Done" />
     <TextBlock DockPanel.Dock="Top" Classes="label" Text="Words (one per line)" />
     <Button DockPanel.Dock="Bottom" Margin="0,12,0,0" Content="Shuffle" Command="{Binding ShuffleWordsCommand}" />
+    <!-- The iPad's return key says "return" here, because it starts the next word's line. -->
     <TextBox Text="{Binding SelectedList.WordsText}" AcceptsReturn="True" FontSize="22"
-             TextWrapping="NoWrap" MinHeight="220" />
+             TextWrapping="NoWrap" MinHeight="220"
+             TextInputOptions.Multiline="True" TextInputOptions.ReturnKeyType="Return" />
   </DockPanel>
 </UserControl>

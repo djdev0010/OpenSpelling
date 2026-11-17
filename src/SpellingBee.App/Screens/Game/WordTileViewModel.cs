@@ -2,19 +2,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace SpellingBee.App.Screens.Game;
 
-/// <summary>One word in the strip: blanks until it is spelled right, so the child can't copy it.</summary>
-public sealed partial class WordTileViewModel : ObservableObject
+/// <summary>
+/// One word in the progress strip. Every badge is the same size and shows no letters, so the
+/// child can't copy a word or count its letters. State is shown by shape as well as colour:
+/// a tick when it is spelled right, a try-again arrow when it was missed.
+/// </summary>
+public sealed partial class WordTileViewModel(string word) : ObservableObject
 {
-    public WordTileViewModel(string word)
-    {
-        Word = word;
-        DisplayText = Blanks(word);
-    }
-
-    public string Word { get; }
-
-    [ObservableProperty]
-    public partial string DisplayText { get; set; }
+    public string Word { get; } = word;
 
     [ObservableProperty]
     public partial bool IsCurrent { get; set; }
@@ -25,13 +20,10 @@ public sealed partial class WordTileViewModel : ObservableObject
     [ObservableProperty]
     public partial bool IsMissed { get; set; }
 
-    public void ShowState(bool isCurrent, bool isSpelledRight, bool isMissed, bool isRevealed)
+    public void ShowState(bool isCurrent, bool isSpelledRight, bool isMissed)
     {
         IsCurrent = isCurrent;
         IsSpelledRight = isSpelledRight;
         IsMissed = isMissed && !isSpelledRight;
-        DisplayText = isSpelledRight || isRevealed ? Word.ToUpperInvariant() : Blanks(Word);
     }
-
-    private static string Blanks(string word) => string.Join(" ", word.Where(char.IsLetter).Select(_ => "_"));
 }

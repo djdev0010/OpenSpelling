@@ -19,6 +19,7 @@ public sealed class SpellingTurn
     private readonly GameSignals _signals;
     private readonly AnswerCollector _collector;
     private readonly AnswerMatcher _matcher;
+    private readonly AnswerDisplay _answerDisplay;
 
     public SpellingTurn(GameServices services, GameStateTracker state, GameSignals signals, IHeardAnswerLog heardLog)
     {
@@ -28,6 +29,7 @@ public sealed class SpellingTurn
         var letterRules = LetterRules.FromTuning(services.Tuning.Letters);
         _matcher = letterRules.Matcher;
         _collector = new AnswerCollector(services.Time, services.Tuning.Timings, letterRules, heardLog);
+        _answerDisplay = new AnswerDisplay(() => state.ShowPhase(GamePhase.Listening), state.ShowHeardLetters);
     }
 
     /// <summary>Keeps asking until the child answers. Returns true when spelled right.</summary>
@@ -68,7 +70,7 @@ public sealed class SpellingTurn
     private async Task<TurnAnswer> ListenForAnswerAsync(string word, bool acceptSoundAlikes, CancellationToken cancellationToken)
     {
         await Task.Delay(_services.Tuning.Timings.PauseBeforeListening, _services.Time, cancellationToken);
-        _state.ShowPhase(GamePhase.Listening);
+        _state.ShowPhase(GamePhase.GettingReadyToListen);
         _signals.GrownUpVerdict.Clear();
         _signals.WordAskedAgain.Clear();
         return await ListenOrTakeTapAsync(word, acceptSoundAlikes, cancellationToken);
@@ -80,7 +82,7 @@ public sealed class SpellingTurn
     {
         using var stop = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         var listening = _collector.CollectAnswerAsync(
-            _services.Listener, word, acceptSoundAlikes, _state.ShowHeardLetters, stop.Token);
+            _services.Listener, word, acceptSoundAlikes, _answerDisplay, stop.Token);
         var grownUpVerdict = _signals.GrownUpVerdict.WaitForValueAsync(stop.Token);
         var wordAskedAgain = _signals.WordAskedAgain.WaitForValueAsync(stop.Token);
 

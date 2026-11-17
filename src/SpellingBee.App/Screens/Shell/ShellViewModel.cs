@@ -24,7 +24,7 @@ public sealed partial class ShellViewModel : ObservableObject
         _chooseWords = new ChooseWordsViewModel(services.ChooseSpellingList, services.Ui);
         _game = new GameViewModel(services.PlayGame, services.Ui);
         _grownUp = new GrownUpViewModel(
-            services.ChangeSettings, services.PlayGame, new VoicePickerViewModel(services.PreviewVoice), services.Ui);
+            services.ChangeSettings, new VoicePickerViewModel(services.PreviewVoice), services.Ui);
 
         _home.PlayRequested += OnPlayRequested;
         _home.GrownUpAreaRequested += OnGrownUpAreaRequested;

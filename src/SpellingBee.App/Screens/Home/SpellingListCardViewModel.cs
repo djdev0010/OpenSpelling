@@ -3,7 +3,7 @@ using SpellingBee.Domain.SpellingLists;
 
 namespace SpellingBee.App.Screens.Home;
 
-/// <summary>One saved list on the Choose words screen, as a big card the child can tap.</summary>
+/// <summary>One saved list on the Choose words screen, as a full-width row the child can tap.</summary>
 public sealed partial class SpellingListCardViewModel : ObservableObject
 {
     private const int WordsInPreview = 4;

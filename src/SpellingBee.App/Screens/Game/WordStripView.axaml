@@ -3,6 +3,7 @@
              xmlns:game="using:SpellingBee.App.Screens.Game"
              x:Class="SpellingBee.App.Screens.Game.WordStripView"
              x:DataType="game:WordStripViewModel">
+  <!-- One same-size badge per word: no letters, so it never shows how long a word is. -->
   <ItemsControl ItemsSource="{Binding Tiles}">
     <ItemsControl.ItemsPanel>
       <ItemsPanelTemplate>
@@ -11,11 +12,14 @@
     </ItemsControl.ItemsPanel>
     <ItemsControl.ItemTemplate>
       <DataTemplate x:DataType="game:WordTileViewModel">
-        <Border Classes="word-tile"
+        <Border Classes="word-badge"
                 Classes.current="{Binding IsCurrent}"
                 Classes.right="{Binding IsSpelledRight}"
                 Classes.missed="{Binding IsMissed}">
-          <TextBlock Text="{Binding DisplayText}" />
+          <Panel>
+            <PathIcon Data="{StaticResource CheckIcon}" IsVisible="{Binding IsSpelledRight}" />
+            <PathIcon Data="{StaticResource ReplayIcon}" IsVisible="{Binding IsMissed}" />
+          </Panel>
         </Border>
       </DataTemplate>
     </ItemsControl.ItemTemplate>

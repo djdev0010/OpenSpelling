@@ -4,23 +4,32 @@
              x:Class="SpellingBee.App.Screens.Game.LetterKeyboardView"
              x:DataType="game:LetterKeyboardViewModel">
   <StackPanel HorizontalAlignment="Center">
-    <ItemsControl ItemsSource="{Binding Keys}">
-      <ItemsControl.ItemsPanel>
-        <ItemsPanelTemplate>
-          <UniformGrid Columns="9" />
-        </ItemsPanelTemplate>
-      </ItemsControl.ItemsPanel>
+    <!-- One centred row of keys per line, like a real keyboard. -->
+    <ItemsControl ItemsSource="{Binding Rows}">
       <ItemsControl.ItemTemplate>
-        <DataTemplate x:DataType="game:LetterKeyViewModel">
-          <Button Classes="key" Content="{Binding Letter}" Command="{Binding PressCommand}" />
+        <DataTemplate x:DataType="x:Object">
+          <ItemsControl ItemsSource="{Binding}" HorizontalAlignment="Center">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="game:LetterKeyViewModel">
+                <Button Classes="key" Content="{Binding Letter}" Command="{Binding PressCommand}" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
         </DataTemplate>
       </ItemsControl.ItemTemplate>
     </ItemsControl>
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-      <Button Classes="key" Width="140" Command="{Binding PressEraseCommand}">
+      <Button Classes="key" Width="140" Command="{Binding PressEraseCommand}"
+              ToolTip.Tip="Erase" AutomationProperties.Name="Erase">
         <PathIcon Data="{StaticResource BackspaceIcon}" />
       </Button>
-      <Button Classes="key done" Width="180" Command="{Binding PressDoneCommand}">
+      <Button Classes="key primary" Width="180" Command="{Binding PressDoneCommand}"
+              ToolTip.Tip="Done" AutomationProperties.Name="Done">
         <PathIcon Data="{StaticResource CheckIcon}" />
       </Button>
     </StackPanel>

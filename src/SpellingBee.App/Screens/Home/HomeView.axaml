@@ -1,24 +1,30 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:home="using:SpellingBee.App.Screens.Home"
-             xmlns:shared="using:SpellingBee.App.Shared"
              x:Class="SpellingBee.App.Screens.Home.HomeView"
              x:DataType="home:HomeViewModel">
-  <Grid RowDefinitions="Auto,*" Margin="24">
+  <Grid RowDefinitions="Auto,Auto,*" Margin="24">
+
+    <!-- Settings for grown-ups: small and out of the way, top trailing corner. -->
+    <Button Classes="pill" Command="{Binding OpenGrownUpAreaCommand}" HorizontalAlignment="Right">
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <PathIcon Data="{StaticResource CogIcon}" />
+        <TextBlock Text="Settings" VerticalAlignment="Center" />
+      </StackPanel>
+    </Button>
 
     <!-- Title. -->
-    <StackPanel Orientation="Horizontal" Spacing="18" HorizontalAlignment="Center" Margin="0,32,0,0">
+    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="16" HorizontalAlignment="Center" Margin="0,8,0,0">
       <PathIcon Data="{StaticResource StarIcon}" Width="56" Height="56" Foreground="{StaticResource BeeYellowBrush}" />
       <TextBlock Classes="title" Text="Spelling Bee" />
-      <PathIcon Data="{StaticResource StarIcon}" Width="56" Height="56" Foreground="{StaticResource BeeYellowBrush}" />
     </StackPanel>
 
-    <!-- The start menu. -->
-    <StackPanel Grid.Row="1" Spacing="18" Width="600" VerticalAlignment="Center">
-      <Button Classes="menu-item play" Command="{Binding StartSpellingCommand}">
+    <!-- The two things a child can do: same size, Play is the yellow one. -->
+    <StackPanel Grid.Row="2" Spacing="24" Width="600" VerticalAlignment="Center">
+      <Button Classes="menu-item primary" Command="{Binding StartSpellingCommand}">
         <Grid ColumnDefinitions="Auto,*">
           <PathIcon Data="{StaticResource PlayIcon}" />
-          <StackPanel Grid.Column="1">
+          <StackPanel Grid.Column="1" VerticalAlignment="Center">
             <TextBlock Classes="menu-label" Text="Play" />
             <TextBlock Classes="menu-detail" Text="Pick your words, then spell them" />
           </StackPanel>
@@ -28,24 +34,12 @@
       <Button Classes="menu-item" Command="{Binding StartListenAndLearnCommand}">
         <Grid ColumnDefinitions="Auto,*">
           <PathIcon Data="{StaticResource EarIcon}" Foreground="{StaticResource TeachPurpleBrush}" />
-          <StackPanel Grid.Column="1">
+          <StackPanel Grid.Column="1" VerticalAlignment="Center">
             <TextBlock Classes="menu-label" Text="Listen and learn" />
             <TextBlock Classes="menu-detail" Text="Hear each word spelled, then spell them" />
           </StackPanel>
         </Grid>
       </Button>
-
-      <!-- Settings are for grown-ups, so they open only after holding the lock for 3 seconds. -->
-      <Border Classes="menu-item">
-        <Grid ColumnDefinitions="Auto,*">
-          <!-- 64 wide, so pull it 4 left to centre it under the 56-wide icons above and line up the label. -->
-          <shared:HoldToOpenButton Command="{Binding OpenGrownUpAreaCommand}" Margin="-4,0,20,0" />
-          <StackPanel Grid.Column="1" VerticalAlignment="Center">
-            <TextBlock Classes="menu-label" Text="Settings" />
-            <TextBlock Classes="menu-detail" Text="For grown-ups: press and hold the lock" />
-          </StackPanel>
-        </Grid>
-      </Border>
     </StackPanel>
   </Grid>
 </UserControl>

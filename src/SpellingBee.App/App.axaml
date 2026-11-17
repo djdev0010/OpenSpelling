@@ -13,5 +13,6 @@
   <Application.Styles>
     <FluentTheme />
     <StyleInclude Source="avares://SpellingBee.App/Styles/KidTheme.axaml" />
+    <StyleInclude Source="avares://SpellingBee.App/Styles/KidButtons.axaml" />
   </Application.Styles>
 </Application>

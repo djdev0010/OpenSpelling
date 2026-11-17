@@ -22,6 +22,7 @@ public sealed class OnScreenKeyboardListener : ISpellingListener
     {
         // Ignore keys pressed before this word started.
         _keyPresses = Channel.CreateUnbounded<HeardEvent>();
+        yield return new ListeningStarted();
         await foreach (var keyPress in _keyPresses.Reader.ReadAllAsync(cancellationToken))
             yield return keyPress;
     }

@@ -11,7 +11,10 @@ public enum GamePhase
     /// <summary>The app is saying "Please spell: car."</summary>
     Prompting,
 
-    /// <summary>The microphone (or keyboard) is open for the child's answer.</summary>
+    /// <summary>The prompt is over and the microphone is opening. The child should wait.</summary>
+    GettingReadyToListen,
+
+    /// <summary>The microphone (or keyboard) is really hearing: the child can spell now.</summary>
     Listening,
 
     /// <summary>Right answer: chime and cheer.</summary>

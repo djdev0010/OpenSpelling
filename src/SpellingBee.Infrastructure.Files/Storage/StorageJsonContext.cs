@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using SpellingBee.Domain.Progress;
 using SpellingBee.Domain.Settings;
 
 namespace SpellingBee.Infrastructure.Files.Storage;
@@ -11,7 +10,6 @@ namespace SpellingBee.Infrastructure.Files.Storage;
 /// </summary>
 [JsonSourceGenerationOptions(WriteIndented = true, IgnoreReadOnlyProperties = true)]
 [JsonSerializable(typeof(AppSettings))]
-[JsonSerializable(typeof(GameProgress))]
 internal sealed partial class StorageJsonContext : JsonSerializerContext
 {
 }

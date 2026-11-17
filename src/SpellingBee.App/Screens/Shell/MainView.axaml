@@ -5,7 +5,11 @@
              xmlns:grownUp="using:SpellingBee.App.Screens.GrownUp"
              xmlns:home="using:SpellingBee.App.Screens.Home"
              x:Class="SpellingBee.App.Screens.Shell.MainView"
-             x:DataType="shell:ShellViewModel">
+             x:DataType="shell:ShellViewModel"
+             FontFamily="{StaticResource KidFont}"
+             Background="{StaticResource CreamBrush}"
+             Foreground="{StaticResource InkBrush}">
+  <!-- The look is set here, not on Window: the iPad has no window and shows this view directly. -->
   <ContentControl Content="{Binding CurrentScreen}">
     <ContentControl.DataTemplates>
       <DataTemplate DataType="home:HomeViewModel">

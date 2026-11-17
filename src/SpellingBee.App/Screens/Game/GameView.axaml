@@ -3,65 +3,91 @@
              xmlns:game="using:SpellingBee.App.Screens.Game"
              x:Class="SpellingBee.App.Screens.Game.GameView"
              x:DataType="game:GameViewModel">
-  <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="24">
+  <Grid RowDefinitions="Auto,*" Margin="24">
 
-    <!-- Top bar: back to the menu, and progress for grown-ups. -->
-    <Grid Grid.Row="0" ColumnDefinitions="Auto,*">
-      <Button Classes="home" Command="{Binding GoHomeCommand}">
+    <!-- Top bar: Home on the leading side, one badge per word in the middle, progress on the trailing side. -->
+    <Grid ColumnDefinitions="Auto,*,Auto">
+      <Button Classes="toolbar" Command="{Binding GoHomeCommand}"
+              ToolTip.Tip="Home" AutomationProperties.Name="Home">
         <PathIcon Data="{StaticResource HomeIcon}" />
       </Button>
-      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="20" VerticalAlignment="Center" Margin="20,0,0,0">
-        <TextBlock Text="{Binding ProgressText}" FontSize="22" FontWeight="Bold" />
-        <TextBlock Text="{Binding RoundText}" FontSize="22" Foreground="{StaticResource SoftInkBrush}" />
+      <game:WordStripView Grid.Column="1" DataContext="{Binding WordStrip}"
+                          VerticalAlignment="Center" Margin="16,0" />
+      <StackPanel Grid.Column="2" VerticalAlignment="Center" MinWidth="64">
+        <TextBlock Classes="status" Text="{Binding ProgressText}" HorizontalAlignment="Right" />
+        <TextBlock Classes="status" Text="{Binding RoundText}" FontSize="17" HorizontalAlignment="Right" />
       </StackPanel>
     </Grid>
 
-    <game:WordStripView Grid.Row="1" DataContext="{Binding WordStrip}" Margin="0,16" />
-
     <!-- Middle: changes with the game phase. -->
-    <Panel Grid.Row="2">
-      <StackPanel IsVisible="{Binding IsReadyToStart}" Orientation="Horizontal" Spacing="48"
+    <Panel Grid.Row="1">
+
+      <!-- Before the game: two same-size choices, Start is the yellow one. -->
+      <StackPanel IsVisible="{Binding IsReadyToStart}" Orientation="Horizontal"
                   HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Button Classes="big-round" Command="{Binding StartGameCommand}">
-          <PathIcon Data="{StaticResource PlayIcon}" />
+        <Button Classes="action primary" Command="{Binding StartGameCommand}">
+          <StackPanel>
+            <PathIcon Data="{StaticResource PlayIcon}" />
+            <TextBlock Text="Start" />
+          </StackPanel>
         </Button>
-        <Button Classes="big-round small" Command="{Binding ListenAndLearnCommand}" VerticalAlignment="Center">
-          <PathIcon Data="{StaticResource EarIcon}" Foreground="{StaticResource TeachPurpleBrush}" />
-        </Button>
-      </StackPanel>
-
-      <StackPanel IsVisible="{Binding IsPlaying}" Spacing="20" VerticalAlignment="Center">
-        <Panel Height="90" HorizontalAlignment="Center">
-          <PathIcon Data="{StaticResource SpeakerIcon}" Width="80" Height="80"
-                    Foreground="{StaticResource BeeAmberBrush}" IsVisible="{Binding IsSpeaking}" />
-          <PathIcon Classes="pulse" Data="{StaticResource MicrophoneIcon}" Width="80" Height="80"
-                    Foreground="{StaticResource CurrentBlueBrush}" IsVisible="{Binding IsListening}" />
-        </Panel>
-        <game:AnswerLettersView DataContext="{Binding AnswerLetters}" />
-        <!-- Hear the word again, slowly. -->
-        <Button Classes="big-round small" Command="{Binding SayWordAgainCommand}"
-                IsVisible="{Binding IsListening}" HorizontalAlignment="Center">
-          <PathIcon Data="{StaticResource SpeakerIcon}" Foreground="{StaticResource BeeAmberBrush}" />
-        </Button>
-        <Button Classes="big-round pulse" Command="{Binding KeepGoingCommand}"
-                IsVisible="{Binding IsWaitingForChild}" HorizontalAlignment="Center">
-          <PathIcon Data="{StaticResource PlayIcon}" />
+        <Button Classes="action" Command="{Binding ListenAndLearnCommand}">
+          <StackPanel>
+            <PathIcon Data="{StaticResource EarIcon}" Foreground="{StaticResource TeachPurpleBrush}" />
+            <TextBlock Text="Hear first" />
+          </StackPanel>
         </Button>
       </StackPanel>
 
-      <StackPanel IsVisible="{Binding IsFinished}" Spacing="32"
+      <!-- During the game, from the top: what to do now, the letters, then the keyboard or Keep going. -->
+      <Grid IsVisible="{Binding IsPlaying}" RowDefinitions="Auto,Auto,*" Margin="0,24,0,0">
+        <Grid ColumnDefinitions="*,Auto">
+          <game:TurnStatusView VerticalAlignment="Center" />
+          <Button Grid.Column="1" Classes="pill large" Command="{Binding SayWordAgainCommand}"
+                  IsVisible="{Binding IsListening}" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+              <PathIcon Data="{StaticResource SpeakerIcon}" />
+              <TextBlock Text="Say it again" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+        </Grid>
+        <game:AnswerLettersView Grid.Row="1" DataContext="{Binding AnswerLetters}" Margin="0,16,0,0" />
+        <!-- The keyboard takes only the space left under the letters, shrinking to fit (landscape iPad). -->
+        <Viewbox Grid.Row="2" IsVisible="{Binding ShowKeyboard}" StretchDirection="DownOnly"
+                 VerticalAlignment="Bottom" Margin="0,16,0,0">
+          <game:LetterKeyboardView DataContext="{Binding Keyboard}" />
+        </Viewbox>
+        <Button Grid.Row="2" Classes="action primary pulse" Command="{Binding KeepGoingCommand}"
+                IsVisible="{Binding IsWaitingForChild}" HorizontalAlignment="Center" VerticalAlignment="Top"
+                Margin="0,24,0,0">
+          <StackPanel>
+            <PathIcon Data="{StaticResource PlayIcon}" />
+            <TextBlock Text="Keep going" />
+          </StackPanel>
+        </Button>
+      </Grid>
+
+      <!-- After the last word. -->
+      <StackPanel IsVisible="{Binding IsFinished}" Spacing="24"
                   HorizontalAlignment="Center" VerticalAlignment="Center">
         <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
           <PathIcon Data="{StaticResource StarIcon}" Width="90" Height="90" Foreground="{StaticResource BeeYellowBrush}" />
           <PathIcon Data="{StaticResource StarIcon}" Width="120" Height="120" Foreground="{StaticResource BeeAmberBrush}" />
           <PathIcon Data="{StaticResource StarIcon}" Width="90" Height="90" Foreground="{StaticResource BeeYellowBrush}" />
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Spacing="48" HorizontalAlignment="Center">
-          <Button Classes="big-round" Command="{Binding PlayAgainCommand}">
-            <PathIcon Data="{StaticResource ReplayIcon}" />
+        <TextBlock Classes="screen-title" Text="You spelled them all!" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+          <Button Classes="action primary" Command="{Binding PlayAgainCommand}">
+            <StackPanel>
+              <PathIcon Data="{StaticResource ReplayIcon}" />
+              <TextBlock Text="Play again" />
+            </StackPanel>
           </Button>
-          <Button Classes="big-round small" Command="{Binding GoHomeCommand}" VerticalAlignment="Center">
-            <PathIcon Data="{StaticResource HomeIcon}" />
+          <Button Classes="action" Command="{Binding GoHomeCommand}">
+            <StackPanel>
+              <PathIcon Data="{StaticResource HomeIcon}" />
+              <TextBlock Text="Home" />
+            </StackPanel>
           </Button>
         </StackPanel>
       </StackPanel>
@@ -69,17 +95,16 @@
       <!-- Grown-up ✓ / ✗ when the microphone mishears (off by default). -->
       <StackPanel IsVisible="{Binding ShowGrownUpVerdictButtons}" Orientation="Horizontal"
                   HorizontalAlignment="Right" VerticalAlignment="Bottom">
-        <Button Classes="verdict right" Command="{Binding MarkSpelledRightCommand}">
+        <Button Classes="verdict right" Command="{Binding MarkSpelledRightCommand}"
+                ToolTip.Tip="Spelled right" AutomationProperties.Name="Spelled right">
           <PathIcon Data="{StaticResource CheckIcon}" />
         </Button>
-        <Button Classes="verdict wrong" Command="{Binding MarkSpelledWrongCommand}">
+        <Button Classes="verdict wrong" Command="{Binding MarkSpelledWrongCommand}"
+                ToolTip.Tip="Spelled wrong" AutomationProperties.Name="Spelled wrong">
           <PathIcon Data="{StaticResource CrossIcon}" />
         </Button>
       </StackPanel>
     </Panel>
 
-    <Panel Grid.Row="3" IsVisible="{Binding ShowKeyboard}">
-      <game:LetterKeyboardView DataContext="{Binding Keyboard}" />
-    </Panel>
   </Grid>
 </UserControl>

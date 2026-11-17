@@ -39,7 +39,7 @@ public sealed class SpeechPreloader(SpeechClipCache clipCache)
     {
         try
         {
-            await clipCache.GetOrCreateClipAsync(request, cancellationToken);
+            await clipCache.PreloadClipAsync(request, cancellationToken);
         }
         catch (Exception error) when (error is not OperationCanceledException)
         {

@@ -6,6 +6,13 @@ namespace SpellingBee.Application.Ports.Listening;
 /// </summary>
 public abstract record HeardEvent;
 
+/// <summary>
+/// The listener is really hearing now (the microphone is open, or the keyboard is ready).
+/// Sent once, first. Until it arrives, anything the child says is lost, so the game waits for it
+/// before telling the child it is their turn.
+/// </summary>
+public sealed record ListeningStarted : HeardEvent;
+
 /// <summary>The child started making a sound; text will follow when they pause.</summary>
 public sealed record SpeechStarted : HeardEvent;
 

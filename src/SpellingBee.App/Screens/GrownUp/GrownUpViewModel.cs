@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SpellingBee.App.Shared;
 using SpellingBee.Application.ChangeSettings;
-using SpellingBee.Application.PlayGame;
 using SpellingBee.Application.Ports.Listening;
 using SpellingBee.Domain.Settings;
 
@@ -12,13 +11,11 @@ namespace SpellingBee.App.Screens.GrownUp;
 public sealed partial class GrownUpViewModel : ObservableObject
 {
     private readonly ChangeSettingsService _changeSettings;
-    private readonly PlayGameService _playGame;
 
     public GrownUpViewModel(
-        ChangeSettingsService changeSettings, PlayGameService playGame, VoicePickerViewModel voicePicker, IUiDispatcher ui)
+        ChangeSettingsService changeSettings, VoicePickerViewModel voicePicker, IUiDispatcher ui)
     {
         _changeSettings = changeSettings;
-        _playGame = playGame;
         VoicePicker = voicePicker;
         changeSettings.SpeechPreparationChanged += progress => ui.RunOnUiThread(() => ShowPreparationProgress(progress));
         ShowPreparationProgress(changeSettings.SpeechPreparation);
@@ -36,8 +33,27 @@ public sealed partial class GrownUpViewModel : ObservableObject
     [ObservableProperty]
     public partial bool AcceptSoundAlikeLetters { get; set; }
 
+    /// <summary>The child taps letters on screen instead of spelling out loud.</summary>
     [ObservableProperty]
     public partial bool UseOnScreenKeyboard { get; set; }
+
+    /// <summary>The opposite of <see cref="UseOnScreenKeyboard"/>, for the "Out loud" choice.</summary>
+    public bool SpellOutLoud
+    {
+        get => !UseOnScreenKeyboard;
+        set => UseOnScreenKeyboard = !value;
+    }
+
+    /// <summary>QWERTY letter order on the keyboard; otherwise A–Z.</summary>
+    [ObservableProperty]
+    public partial bool UseQwertyKeyboard { get; set; }
+
+    /// <summary>The opposite of <see cref="UseQwertyKeyboard"/>, for the "A to Z" choice.</summary>
+    public bool UseAlphabeticalKeyboard
+    {
+        get => !UseQwertyKeyboard;
+        set => UseQwertyKeyboard = !value;
+    }
 
     [ObservableProperty]
     public partial string MicrophoneStatus { get; set; } = "";
@@ -54,6 +70,7 @@ public sealed partial class GrownUpViewModel : ObservableObject
         ShowGrownUpOverrideButtons = saved.ShowGrownUpOverrideButtons;
         AcceptSoundAlikeLetters = saved.AcceptSoundAlikeLetters;
         UseOnScreenKeyboard = saved.UseOnScreenKeyboard;
+        UseQwertyKeyboard = saved.KeyboardLayout == KeyboardLayout.Qwerty;
         MicrophoneStatus = DescribeMicrophone(_changeSettings.MicrophoneReadiness);
     }
 
@@ -67,8 +84,9 @@ public sealed partial class GrownUpViewModel : ObservableObject
     [RelayCommand]
     private void CloseWithoutSaving() => CloseRequested?.Invoke();
 
-    [RelayCommand]
-    private Task ResetProgressAsync() => _playGame.ResetProgressAsync(CancellationToken.None);
+    partial void OnUseOnScreenKeyboardChanged(bool value) => OnPropertyChanged(nameof(SpellOutLoud));
+
+    partial void OnUseQwertyKeyboardChanged(bool value) => OnPropertyChanged(nameof(UseAlphabeticalKeyboard));
 
     private AppSettings CreateSettingsFromForm() => SpellingLists.ApplyListsTo(_changeSettings.SavedSettings with
     {
@@ -76,6 +94,7 @@ public sealed partial class GrownUpViewModel : ObservableObject
         ShowGrownUpOverrideButtons = ShowGrownUpOverrideButtons,
         AcceptSoundAlikeLetters = AcceptSoundAlikeLetters,
         UseOnScreenKeyboard = UseOnScreenKeyboard,
+        KeyboardLayout = UseQwertyKeyboard ? KeyboardLayout.Qwerty : KeyboardLayout.Alphabetical,
     });
 
     private void ShowPreparationProgress(double progress) =>

@@ -25,7 +25,6 @@ public static class IPadPlatformAdapters
             models, new IosMicrophone(), new IosMicrophonePermission(), AppTuning.Default.Listening);
         var storage = new StoragePorts(
             new JsonFileSettingsStorage(dataFolder),
-            new JsonFileProgressStorage(dataFolder),
             new WavFileClipStore(Path.Combine(dataFolder, "speech-cache")),
             new FileHeardAnswerLog(dataFolder, TimeProvider.System));
         return new PlatformAdapters([kokoro], new IosAudioPlayer(), listener, storage, [kokoro, listener]);

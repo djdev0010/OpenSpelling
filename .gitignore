@@ -36,3 +36,6 @@ xcuserdata/
 
 # macOS
 .DS_Store
+
+# Bundle ID chosen by scripts/install-ipad.sh for this Mac's signing profile
+.ipad-bundle-id

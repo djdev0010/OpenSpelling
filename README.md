@@ -5,7 +5,7 @@ words and taps Start. The app then says each word, listens while the child spell
 it out loud, and cheers or gently shows the right spelling. Missed words come back
 in the next round until every word is right.
 
-Everything runs on the Mac. There are no accounts, ads, cloud services or telemetry.
+Everything runs on the Mac or iPad. There are no accounts, ads, cloud services or telemetry.
 
 ## Requirements
 
@@ -65,24 +65,80 @@ The iPad app uses the same screens, voice and recognizer as the Mac app.
    dotnet build src/SpellingBee.App.iOS -t:Run -r iossimulator-arm64
    ```
 
+### Install it on a real iPad
+
+Plug in the iPad, unlock it, and run:
+
+```bash
+scripts/install-ipad.sh
+```
+
+It finds the iPad, picks a bundle ID the first time (saved in `.ipad-bundle-id`), has Xcode make a
+signing profile for it, then builds, installs and starts the app. It needs Xcode signed in to your
+Apple ID, Developer Mode on the iPad, and `xcodegen` (`brew install xcodegen`) for the signing
+profile. Run it again after every change. Add `--debug` for a quicker but much slower-running build.
+
+The steps below do the same by hand.
+
+The app is about 900 MB because the models are inside, so the first install over the cable takes
+a few minutes.
+
 > [!NOTE]
-> The models make the iPad app about 800 MB. To install it on a real iPad, sign in to Xcode with
-> your Apple ID. A free account works, but the app stops opening after 7 days until you install
-> it again; a paid Apple Developer account avoids that.
+> A free Apple ID works, but the app stops opening after 7 days until you install it again. A paid
+> Apple Developer account avoids that.
+
+1. Do steps 1 and 2 of [Run it in the iPad simulator](#run-it-in-the-ipad-simulator) first if you
+   haven't already. `scripts/build-sherpa-ios.sh` builds the speech engine for both the simulator
+   and real iPads.
+2. In Xcode, open **Settings → Accounts** and sign in with your Apple ID.
+3. Pick a bundle ID that is yours, such as `com.yourname.spellingbee`. Apple requires every app
+   to have a unique ID, so the project's placeholder `local.spellingbee.app` won't work on a device.
+4. Have Xcode make a signing profile for that ID. .NET can't create one itself:
+   1. Connect the iPad with a cable, unlock it, and tap **Trust** when it asks.
+   2. In Xcode, choose **File → New → Project → iOS → App**. Set **Bundle Identifier** to the ID
+      from step 3, and choose your Apple ID as the **Team**.
+   3. Choose the iPad as the run destination and press **Run** once. You can delete this project
+      afterwards; the profile stays.
+5. Turn on Developer Mode on the iPad: **Settings → Privacy & Security → Developer Mode**. The iPad
+   restarts.
+6. Find the iPad's ID:
+
+   ```bash
+   xcrun devicectl list devices
+   ```
+
+   Copy the long ID in the **Identifier** column next to the iPad.
+7. Build, install and start the app. Replace the bundle ID and the iPad ID with yours:
+
+   ```bash
+   dotnet build src/SpellingBee.App.iOS -t:Run -r ios-arm64 -p:ApplicationId=com.yourname.spellingbee -p:CodesignKey="Apple Development" -p:_DeviceName=00008030-000000000000000E
+   ```
+
+8. The first time, iPadOS blocks the app because it doesn't know you yet. On the iPad, open
+   **Settings → General → VPN & Device Management**, tap your Apple ID, and tap **Trust**. Then
+   open Spelling Bee from the Home Screen.
+
+**If the build says no provisioning profile matches**, the bundle ID in step 7 is different from
+the one you ran in Xcode in step 4, or that Xcode run didn't finish. Run the Xcode project on the
+iPad again.
 
 ## Using it
 
-- **Child:** tap the big Start button, or "Listen and learn" to hear each word spelled first.
+- **Child:** tap Start, or "Hear first" to hear each word spelled first. Spell out loud when
+  the green light says **Your turn!** (a grey "Wait…" means the microphone is still opening).
+  Every game starts from the first word; nothing is remembered between games.
 - **Start menu:** Play or Listen and learn, then pick which saved list to use.
-- **Settings (grown-ups):** press and hold the lock for 3 seconds. There you can add,
-  rename and delete spelling lists (one per school week works well), shuffle words, reset
-  progress, choose the voice and speed, and turn on ✓/✗ buttons for marking an answer yourself.
+- **Settings (grown-ups):** the Settings button at the top of the start screen. There you can add,
+  rename and delete spelling lists (one per school week works well), shuffle words, choose
+  whether the child spells **out loud** or **taps letters** (A–Z or QWERTY order), choose the voice
+  and speed, and turn on ✓/✗ buttons for marking an answer yourself.
+- **Tapping letters:** the answer is checked only when the child taps the green ✓ key.
 - **"Accept sound-alike letters"** (grown-up area) forgives mix-ups that sound alike, such
   as B/D, M/N and A/I.
 - **If letters are misheard:** `~/Library/Application Support/SpellingBee/heard-log.txt`
   shows exactly what the recognizer heard. Every tuning value is in
-  `src/SpellingBee.Domain/Tuning/`; see [Fix misheard letters](docs/TUNING.md). Settings,
-  progress and cached speech live in the same Library folder.
+  `src/SpellingBee.Domain/Tuning/`; see [Fix misheard letters](docs/TUNING.md). Settings
+  and cached speech live in the same Library folder.
 
 ## For developers
 
@@ -90,6 +146,7 @@ The iPad app uses the same screens, voice and recognizer as the Mac app.
 - Naming, size limits and patterns: [docs/CODE_STANDARDS.md](docs/CODE_STANDARDS.md).
 - Rules for AI coding agents: [AGENTS.md](AGENTS.md).
 - Check the standards with `dotnet run scripts/CheckStandards.cs`.
+- Redraw the app icon (iPad and Mac) with `swift scripts/draw-app-icon.swift`.
 - Licenses: [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md).
 
 ```

@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 namespace SpellingBee.App.Screens.Home;
 
 /// <summary>
-/// The start menu: Play, Listen and learn, and Settings (press and hold, for grown-ups).
+/// The start menu: Play, Listen and learn, and a small Settings button for grown-ups.
 /// Play and Listen and learn both go to the list picker first.
 /// </summary>
 public sealed partial class HomeViewModel : ObservableObject

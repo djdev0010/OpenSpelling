@@ -12,26 +12,25 @@ namespace SpellingBee.Application.PlayGame;
 
 /// <summary>
 /// The child plays the chosen spelling list. Optional "Listen and learn", then rounds
-/// of spelling until every word is right, then the finale. Progress is saved after every word.
+/// of spelling until every word is right, then the finale. Progress lives only as long as
+/// one game: every game starts from round 1, and nothing is saved between app launches.
 /// </summary>
 public sealed class PlayGameService
 {
     private readonly GameServices _services;
     private readonly SettingsStore _settings;
     private readonly OnScreenKeyboardListener _keyboard;
-    private readonly IProgressStorage _storage;
     private readonly GameSignals _signals = new();
     private readonly SpellingTurn _turn;
     private readonly WordTeacher _teacher;
 
     public PlayGameService(
         GameServices services, SettingsStore settings, OnScreenKeyboardListener keyboard,
-        IProgressStorage storage, IHeardAnswerLog heardLog)
+        IHeardAnswerLog heardLog)
     {
         _services = services;
         _settings = settings;
         _keyboard = keyboard;
-        _storage = storage;
         State = new GameStateTracker(GameProgress.StartFresh([]));
         _turn = new SpellingTurn(services, State, _signals, heardLog);
         _teacher = new WordTeacher(services, State);
@@ -44,25 +43,19 @@ public sealed class PlayGameService
 
     public bool ShowsGrownUpVerdictButtons => _settings.Current.ShowGrownUpOverrideButtons;
 
-    /// <summary>Plays the chosen list until every word is right. Cancel to stop; progress so far is kept.</summary>
+    /// <summary>The letter rows of the on-screen keyboard, top to bottom, in the chosen order.</summary>
+    public IReadOnlyList<string> KeyboardRows => Domain.Letters.KeyboardRows.ForLayout(_settings.Current.KeyboardLayout);
+
+    /// <summary>Plays the chosen list from round 1 until every word is right. Cancel to stop.</summary>
     public async Task PlayGameAsync(bool teachWordsFirst, CancellationToken cancellationToken)
     {
         var settings = _settings.Current;
-        var progress = await LoadProgressForWordsAsync(settings.Words, cancellationToken);
-        if (progress.IsComplete) progress = GameProgress.StartFresh(settings.Words);
+        var progress = GameProgress.StartFresh(settings.Words);
         State.ShowProgress(progress);
 
         if (teachWordsFirst) await _teacher.TeachWordsAsync(settings.Words, cancellationToken);
         await PlayRoundsUntilAllSpelledAsync(progress, settings.AcceptSoundAlikeLetters, cancellationToken);
         await PlayFinaleAsync(cancellationToken);
-    }
-
-    /// <summary>Forgets which words were spelled right, so the next game starts from round 1.</summary>
-    public async Task ResetProgressAsync(CancellationToken cancellationToken)
-    {
-        await _storage.DeleteProgressAsync(cancellationToken);
-        State.ShowProgress(GameProgress.StartFresh(_settings.Current.Words));
-        State.ShowWord(null, GamePhase.ReadyToStart, revealed: false);
     }
 
     public void SendGrownUpVerdict(bool spelledRight) => _signals.GrownUpVerdict.Send(spelledRight);
@@ -92,7 +85,6 @@ public sealed class PlayGameService
             bool spelledRight = await _turn.AskUntilAnsweredAsync(word, acceptSoundAlikes, cancellationToken);
             progress = progress.RecordAttempt(word, spelledRight);
             State.ShowProgress(progress);
-            await _storage.SaveProgressAsync(progress, cancellationToken);
             await _turn.PlayFeedbackAsync(word, spelledRight, cancellationToken);
         }
     }
@@ -109,14 +101,7 @@ public sealed class PlayGameService
     private async Task PlayFinaleAsync(CancellationToken cancellationToken)
     {
         State.ShowWord(null, GamePhase.Finished, revealed: false);
-        await _storage.DeleteProgressAsync(cancellationToken);
         await _services.Narrator.PlaySoundEffectAsync(SoundEffect.Fanfare, cancellationToken);
         await _services.Narrator.SpeakAsync(Phrases.AllSpelled, cancellationToken);
-    }
-
-    private async Task<GameProgress> LoadProgressForWordsAsync(IReadOnlyList<string> words, CancellationToken cancellationToken)
-    {
-        var saved = await _storage.LoadProgressAsync(cancellationToken);
-        return saved is not null && saved.IsForWordList(words) ? saved : GameProgress.StartFresh(words);
     }
 }

@@ -140,7 +140,7 @@ not by line count.
 - **MVVM** with CommunityToolkit.Mvvm source generators
   (`[ObservableProperty]`, `[RelayCommand]`).
   - Views are XAML. Code-behind holds only purely visual behavior
-    (e.g. the press-and-hold animation) — never game logic.
+    (e.g. an animation) — never game logic.
   - ViewModels never reference Avalonia controls or Views. They may use
     Avalonia's dispatcher only through `IUiDispatcher`.
 - **The game is a state machine** in `PlayGameService`. It is driven by
@@ -176,7 +176,7 @@ from its call site, without opening it.
 - **Booleans read as yes/no questions:** `IsListening`, `HasMicrophonePermission`,
   `CanStartGame`, `AreSoundAlikeLetters`.
 - **Conversions say both sides:** `ConvertTokenToLetters`, `ToSpokenLetterName`.
-- **Event handlers** are `On<Event>`: `OnHoldCompleted`, `OnLetterKeyPressed`.
+- **Event handlers** are `On<Event>`: `OnListeningStarted`, `OnLetterKeyPressed`.
 - **No vague verbs on their own:** `Handle`, `Process`, `Manage`, `DoWork`,
   `Run`, `Execute`, `Update`, `Check`, `Helper`, `Flush`, `Evaluate`. Use
   them only with a specific object (`CheckMicrophonePermissionAsync` is fine,

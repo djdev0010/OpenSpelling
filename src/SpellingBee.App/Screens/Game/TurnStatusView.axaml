@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:game="using:SpellingBee.App.Screens.Game"
+             x:Class="SpellingBee.App.Screens.Game.TurnStatusView"
+             x:DataType="game:GameViewModel">
+  <!--
+    Tells the child when to listen and when to spell, like a traffic light.
+    Each state has its own colour, icon and word, so colour is never the only signal.
+    "Your turn!" appears only once the microphone is really hearing.
+  -->
+  <Panel>
+    <StackPanel IsVisible="{Binding IsSpeaking}" Classes="status-row">
+      <Border Classes="status-light speaking">
+        <PathIcon Data="{StaticResource SpeakerIcon}" />
+      </Border>
+      <TextBlock Classes="status-word" Text="Listen…" />
+    </StackPanel>
+
+    <StackPanel IsVisible="{Binding IsGettingReady}" Classes="status-row">
+      <Border Classes="status-light waiting">
+        <PathIcon Data="{StaticResource HourglassIcon}" />
+      </Border>
+      <TextBlock Classes="status-word" Text="Wait…" Foreground="{StaticResource SoftInkBrush}" />
+    </StackPanel>
+
+    <StackPanel IsVisible="{Binding IsListening}" Classes="status-row">
+      <Border Classes="status-light your-turn">
+        <Panel>
+          <PathIcon Data="{StaticResource MicrophoneIcon}" IsVisible="{Binding !ShowKeyboard}" />
+          <PathIcon Data="{StaticResource KeyboardIcon}" IsVisible="{Binding ShowKeyboard}" />
+        </Panel>
+      </Border>
+      <TextBlock Classes="status-word" Text="Your turn!" Foreground="{StaticResource RightGreenBrush}" />
+    </StackPanel>
+  </Panel>
+</UserControl>

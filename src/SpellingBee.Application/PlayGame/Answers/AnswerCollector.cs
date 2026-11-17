@@ -12,10 +12,10 @@ public sealed class AnswerCollector(
     LetterRules letterRules,
     IHeardAnswerLog heardLog)
 {
-    /// <param name="showLetters">Called with the letters heard so far, after every change.</param>
+    /// <param name="display">Told when listening really starts, and the letters heard after every change.</param>
     public async Task<AnswerResult> CollectAnswerAsync(
         ISpellingListener listener, string word, bool acceptSoundAlikes,
-        Action<IReadOnlyList<char>> showLetters, CancellationToken cancellationToken)
+        AnswerDisplay display, CancellationToken cancellationToken)
     {
         var answer = new AnswerInProgress(word, CreateRules(listener.InputKind, acceptSoundAlikes), time);
         using var stopListening = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -25,16 +25,17 @@ public sealed class AnswerCollector(
         Task<bool>? nextEvent = null;
         try
         {
-            while (answer.TimeLeftBeforeDeciding() > TimeSpan.Zero)
+            while (!answer.IsReadyToDecide)
             {
                 nextEvent ??= reader.MoveNextAsync().AsTask();
                 if (!await WaitForEventAsync(nextEvent, answer.TimeLeftBeforeDeciding(), cancellationToken)) continue;
                 if (!await nextEvent) break;
 
                 nextEvent = null;
+                if (reader.Current is ListeningStarted) display.ShowListeningStarted();
                 answer.ApplyHeardEvent(reader.Current);
                 if (reader.Current is AnswerHeardSoFar spoken) heardLog.AppendHeardAnswer(word, spoken.Text);
-                showLetters(answer.Letters);
+                display.ShowLetters(answer.Letters);
             }
             return answer.ToResult();
         }
@@ -46,19 +47,23 @@ public sealed class AnswerCollector(
 
     private AnswerRules CreateRules(SpellingInputKind inputKind, bool acceptSoundAlikes)
     {
-        var silence = inputKind == SpellingInputKind.OnScreenKeyboard
-            ? timings.SilenceThatEndsTypedAnswer
-            : timings.SilenceThatEndsSpokenAnswer;
+        // On the keyboard only the done key ends the answer, so a slow typist is never cut off.
+        TimeSpan? silence = inputKind == SpellingInputKind.OnScreenKeyboard ? null : timings.SilenceThatEndsSpokenAnswer;
         return new AnswerRules(letterRules, acceptSoundAlikes, silence, timings.WaitBeforeRepeatingPrompt);
     }
 
-    /// <summary>True when the event arrived; false when the time ran out first.</summary>
-    private async Task<bool> WaitForEventAsync(Task<bool> nextEvent, TimeSpan timeLimit, CancellationToken cancellationToken)
+    /// <summary>True when the event arrived; false when the time ran out first. No limit waits for the event.</summary>
+    private async Task<bool> WaitForEventAsync(Task<bool> nextEvent, TimeSpan? timeLimit, CancellationToken cancellationToken)
     {
+        if (timeLimit is null)
+        {
+            await nextEvent.WaitAsync(cancellationToken);
+            return true;
+        }
         if (timeLimit <= TimeSpan.Zero) return nextEvent.IsCompleted;
 
         using var cancelTimer = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        var timer = Task.Delay(timeLimit, time, cancelTimer.Token);
+        var timer = Task.Delay(timeLimit.Value, time, cancelTimer.Token);
         var first = await Task.WhenAny(nextEvent, timer);
         cancelTimer.Cancel();
         cancellationToken.ThrowIfCancellationRequested();

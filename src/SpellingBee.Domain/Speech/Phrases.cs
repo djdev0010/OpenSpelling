@@ -26,18 +26,21 @@ public static class Phrases
 
     public static string PickCheer(Random random) => Cheers[random.Next(Cheers.Count)];
 
-    /// <summary>Every phrase the game can say for this word list, for pre-generating audio.</summary>
-    public static IReadOnlyList<string> ListAllPhrasesFor(IEnumerable<string> words)
+    /// <summary>
+    /// Every phrase the game can say for this word list, for pre-generating audio, in the order a
+    /// game needs them: the short shared phrases and cheers (needed after the very first answer),
+    /// then each word's prompt and correction in list order, then "Listen and learn".
+    /// </summary>
+    public static IReadOnlyList<string> ListAllPhrasesFor(IReadOnlyList<string> words)
     {
-        var phrases = new List<string>();
+        var phrases = new List<string>(Cheers) { NowYouTry, TryTheTrickyOnesAgain, AllSpelled, StillThere };
         foreach (var word in words)
         {
             phrases.Add(SpellPrompt(word));
             phrases.Add(GoodTryWithCorrectSpelling(word));
-            phrases.Add(ListenAndLearn(word));
         }
-        phrases.AddRange(Cheers);
-        phrases.AddRange([ListenAndLearnIntro, NowYouTry, TryTheTrickyOnesAgain, AllSpelled, StillThere]);
+        phrases.Add(ListenAndLearnIntro);
+        phrases.AddRange(words.Select(ListenAndLearn));
         return phrases.Distinct().ToList();
     }
 

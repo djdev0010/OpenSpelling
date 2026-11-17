@@ -4,8 +4,9 @@ using SpellingBee.Domain.Letters;
 namespace SpellingBee.Application.PlayGame.Answers;
 
 /// <summary>
-/// The child's answer as it comes in, and the rules for when it is finished:
-/// the letters spell the word, the child stops for a while, or nothing comes at all.
+/// The child's answer as it comes in, and the rules for when it is finished: out loud, when the
+/// letters spell the word or the child stops for a while; on the keyboard, when the child taps done.
+/// Either way, the prompt is repeated when nothing comes at all.
 /// </summary>
 internal sealed class AnswerInProgress
 {
@@ -13,7 +14,7 @@ internal sealed class AnswerInProgress
     private readonly LetterRules _letterRules;
     private readonly bool _acceptSoundAlikes;
     private readonly TimeProvider _time;
-    private readonly TimeSpan _silenceThatEndsAnswer;
+    private readonly TimeSpan? _silenceThatEndsAnswer;
     private readonly TimeSpan _waitBeforeGivingUp;
     private readonly List<char> _letters = [];
     private DateTimeOffset _lastActivityAt;
@@ -33,8 +34,15 @@ internal sealed class AnswerInProgress
 
     public IReadOnlyList<char> Letters => _letters;
 
-    public bool IsFinishedEarly =>
-        _wasSubmitted || _letterRules.Matcher.CompareHeardLettersToWord(_word, _letters, _acceptSoundAlikes) == MatchState.Correct;
+    /// <summary>True when there's nothing left to wait for: decide right or wrong now.</summary>
+    public bool IsReadyToDecide => TimeLeftBeforeDeciding() is { } timeLeft && timeLeft <= TimeSpan.Zero;
+
+    public bool IsFinishedEarly => _wasSubmitted || (EndsBySilence && IsSpelledRight);
+
+    private bool EndsBySilence => _silenceThatEndsAnswer is not null;
+
+    private bool IsSpelledRight =>
+        _letterRules.Matcher.CompareHeardLettersToWord(_word, _letters, _acceptSoundAlikes) == MatchState.Correct;
 
     public void ApplyHeardEvent(HeardEvent heard)
     {
@@ -62,15 +70,18 @@ internal sealed class AnswerInProgress
         }
     }
 
-    /// <summary>How long to keep waiting before deciding. Zero or less means decide now.</summary>
-    public TimeSpan TimeLeftBeforeDeciding()
+    /// <summary>
+    /// How long to keep waiting before deciding. Zero or less means decide now; null means wait for
+    /// the next key press however long it takes (letters are typed and the done key hasn't been tapped).
+    /// </summary>
+    public TimeSpan? TimeLeftBeforeDeciding()
     {
         if (IsFinishedEarly) return TimeSpan.Zero;
-
-        bool waitForMoreLetters = _letters.Count > 0 && !_isChildSpeaking;
-        var allowedQuiet = waitForMoreLetters ? _silenceThatEndsAnswer : _waitBeforeGivingUp;
-        return _lastActivityAt + allowedQuiet - _time.GetUtcNow();
+        if (_letters.Count == 0 || _isChildSpeaking) return TimeLeftOf(_waitBeforeGivingUp);
+        return _silenceThatEndsAnswer is { } silence ? TimeLeftOf(silence) : null;
     }
+
+    private TimeSpan TimeLeftOf(TimeSpan allowedQuiet) => _lastActivityAt + allowedQuiet - _time.GetUtcNow();
 
     public AnswerResult ToResult() =>
         new(_letters.Count > 0 ? AnswerOutcome.Answered : AnswerOutcome.NoAnswer, _letters.ToList());

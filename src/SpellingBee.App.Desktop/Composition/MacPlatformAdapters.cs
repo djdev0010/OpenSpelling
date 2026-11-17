@@ -26,7 +26,6 @@ public static class MacPlatformAdapters
             models, microphone, new MacMicrophonePermission(microphone), AppTuning.Default.Listening);
         var storage = new StoragePorts(
             new JsonFileSettingsStorage(dataFolder),
-            new JsonFileProgressStorage(dataFolder),
             new WavFileClipStore(Path.Combine(dataFolder, "speech-cache")),
             new FileHeardAnswerLog(dataFolder, TimeProvider.System));
         return new PlatformAdapters([kokoro, new MacSystemVoice()], new PortAudioPlayer(), listener, storage, [kokoro, listener]);

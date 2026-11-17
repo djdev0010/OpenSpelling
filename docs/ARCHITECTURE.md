@@ -103,7 +103,7 @@ Each user goal has one folder with one entry-point class. Screens call only thes
 |---|---|---|
 | `StartApp` | app | Loads settings, prepares the voice, asks for the microphone. |
 | `ChooseSpellingList` | child | Lists the saved lists and remembers the one picked. |
-| `PlayGame` | child | Plays the list: Listen and learn, rounds, feedback, finale. Also takes on-screen keyboard presses and resets progress. |
+| `PlayGame` | child | Plays the list: Listen and learn, rounds, feedback, finale. Also takes on-screen keyboard presses. Progress lasts one game and is never saved. |
 | `ChangeSettings` | grown-up | Shows and saves lists, voice and options; reports microphone and voice preparation. |
 | `PreviewVoice` | grown-up | Lists voices and speaks a sample. |
 

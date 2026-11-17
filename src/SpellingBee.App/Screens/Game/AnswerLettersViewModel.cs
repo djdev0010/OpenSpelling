@@ -5,8 +5,8 @@ using SpellingBee.Domain.Letters;
 namespace SpellingBee.App.Screens.Game;
 
 /// <summary>
-/// The big letter boxes: empty boxes to fill while listening, the heard letters as they come in,
-/// and the real spelling when the word is taught, cheered or corrected.
+/// The answer strip: the heard letters as they come in, and the real spelling when the word is
+/// taught, cheered or corrected. It never shows empty boxes, so it can't give away the word's length.
 /// </summary>
 public sealed class AnswerLettersViewModel
 {
@@ -19,7 +19,7 @@ public sealed class AnswerLettersViewModel
 
         var boxes = snapshot.IsCurrentWordRevealed
             ? CreateRevealedBoxes(snapshot.CurrentWord, snapshot.Phase)
-            : CreateAnswerBoxes(snapshot.CurrentWord, snapshot.HeardLetters);
+            : CreateAnswerBoxes(snapshot.HeardLetters);
         foreach (var box in boxes) Boxes.Add(box);
     }
 
@@ -31,13 +31,6 @@ public sealed class AnswerLettersViewModel
             IsCorrection: phase == GamePhase.ShowingCorrectSpelling,
             IsTeaching: phase == GamePhase.Teaching));
 
-    private static IEnumerable<LetterBoxViewModel> CreateAnswerBoxes(string word, IReadOnlyList<char> heard)
-    {
-        int boxCount = Math.Max(AnswerMatcher.ToUpperCaseLetters(word).Length, heard.Count);
-        for (int i = 0; i < boxCount; i++)
-        {
-            bool isHeard = i < heard.Count;
-            yield return new LetterBoxViewModel(isHeard ? heard[i].ToString() : "", isHeard, false, false, false);
-        }
-    }
+    private static IEnumerable<LetterBoxViewModel> CreateAnswerBoxes(IReadOnlyList<char> heard) =>
+        heard.Select(letter => new LetterBoxViewModel(letter.ToString(), IsHeard: true, false, false, false));
 }

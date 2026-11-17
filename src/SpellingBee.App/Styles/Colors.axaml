@@ -8,7 +8,14 @@
   <Color x:Key="BeeYellowColor">#FFC93C</Color>
   <Color x:Key="BeeAmberColor">#E89B00</Color>
   <Color x:Key="RightGreenColor">#2E9E5B</Color>
-  <Color x:Key="MissedOrangeColor">#F08A24</Color>
+  <!-- Dark enough for white icons and orange text to reach 4.5:1 (Apple HIG, WCAG AA). -->
+  <Color x:Key="MissedOrangeColor">#B85A00</Color>
+  <Color x:Key="MissedTintColor">#FFEBD6</Color>
+  <Color x:Key="CurrentTintColor">#E3EDFF</Color>
+  <Color x:Key="TeachTintColor">#EEE8FF</Color>
+  <Color x:Key="EdgeColor">#D9D2C0</Color>
+  <Color x:Key="PressedColor">#F3EEE2</Color>
+  <Color x:Key="WaitGreyColor">#8A8F98</Color>
   <Color x:Key="CurrentBlueColor">#2F6FDB</Color>
   <Color x:Key="TeachPurpleColor">#7B5CD6</Color>
 
@@ -22,6 +29,12 @@
   <SolidColorBrush x:Key="MissedOrangeBrush" Color="{StaticResource MissedOrangeColor}" />
   <SolidColorBrush x:Key="CurrentBlueBrush" Color="{StaticResource CurrentBlueColor}" />
   <SolidColorBrush x:Key="TeachPurpleBrush" Color="{StaticResource TeachPurpleColor}" />
+  <SolidColorBrush x:Key="MissedTintBrush" Color="{StaticResource MissedTintColor}" />
+  <SolidColorBrush x:Key="CurrentTintBrush" Color="{StaticResource CurrentTintColor}" />
+  <SolidColorBrush x:Key="TeachTintBrush" Color="{StaticResource TeachTintColor}" />
+  <SolidColorBrush x:Key="EdgeBrush" Color="{StaticResource EdgeColor}" />
+  <SolidColorBrush x:Key="PressedBrush" Color="{StaticResource PressedColor}" />
+  <SolidColorBrush x:Key="WaitGreyBrush" Color="{StaticResource WaitGreyColor}" />
 
   <FontFamily x:Key="KidFont">avares://SpellingBee.App/Assets/Fonts#Andika</FontFamily>
 </ResourceDictionary>

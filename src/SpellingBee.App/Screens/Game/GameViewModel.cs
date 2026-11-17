@@ -44,6 +44,10 @@ public sealed partial class GameViewModel : ObservableObject
     [ObservableProperty]
     public partial bool IsSpeaking { get; set; }
 
+    /// <summary>The prompt is over but the microphone isn't hearing yet: the child should wait.</summary>
+    [ObservableProperty]
+    public partial bool IsGettingReady { get; set; }
+
     [ObservableProperty]
     public partial bool IsWaitingForChild { get; set; }
 
@@ -74,11 +78,7 @@ public sealed partial class GameViewModel : ObservableObject
     private Task ListenAndLearnAsync() => RunGameAsync(teachWordsFirst: true);
 
     [RelayCommand]
-    private async Task PlayAgainAsync()
-    {
-        await _playGame.ResetProgressAsync(CancellationToken.None);
-        await RunGameAsync(teachWordsFirst: false);
-    }
+    private Task PlayAgainAsync() => RunGameAsync(teachWordsFirst: false);
 
     [RelayCommand]
     private void SayWordAgain() => _playGame.SayWordAgain();
@@ -124,13 +124,15 @@ public sealed partial class GameViewModel : ObservableObject
         IsReadyToStart = phase == GamePhase.ReadyToStart;
         IsFinished = phase == GamePhase.Finished;
         IsWaitingForChild = phase == GamePhase.WaitingForChild;
+        IsGettingReady = phase == GamePhase.GettingReadyToListen;
         IsListening = phase == GamePhase.Listening;
         IsSpeaking = phase is GamePhase.Teaching or GamePhase.Prompting or GamePhase.Celebrating or GamePhase.ShowingCorrectSpelling;
         IsPlaying = !IsReadyToStart && !IsFinished;
 
-        ShowKeyboard = IsPlaying && _playGame.IsUsingOnScreenKeyboard;
-        ShowGrownUpVerdictButtons = IsListening && _playGame.ShowsGrownUpVerdictButtons;
-        ProgressText = $"{snapshot.Progress.SpelledRightCount} of {snapshot.Progress.Words.Count} spelled right";
+        ShowKeyboard = IsPlaying && !IsWaitingForChild && _playGame.IsUsingOnScreenKeyboard;
+        if (ShowKeyboard) Keyboard.ShowChosenLayout();
+        ShowGrownUpVerdictButtons = IsListening && _playGame.ShowsGrownUpVerdictButtons && !_playGame.IsUsingOnScreenKeyboard;
+        ProgressText = $"{snapshot.Progress.SpelledRightCount} of {snapshot.Progress.Words.Count}";
         RoundText = $"Round {snapshot.Progress.Round}";
 
         WordStrip.ShowSnapshot(snapshot);

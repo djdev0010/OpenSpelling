@@ -9,6 +9,8 @@
     <ApplicationId>local.spellingbee.app</ApplicationId>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
+    <!-- Assets.xcassets/AppIcon.appiconset, drawn by scripts/draw-app-icon.swift. -->
+    <AppIcon>AppIcon</AppIcon>
   </PropertyGroup>
   <!-- sherpa-onnx's native library, built by scripts/build-sherpa-ios.sh. -->
   <ItemGroup>

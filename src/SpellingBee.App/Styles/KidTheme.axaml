@@ -1,201 +1,139 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- Text, game pieces and the grown-up area. Buttons are in KidButtons.axaml. -->
 
-  <!-- Base: kid-friendly font, dark ink on cream. -->
+  <!-- Base: one kid-friendly typeface, dark ink on cream. MainView sets the same, because the
+       iPad has no Window; this covers the Mac window's edges while it resizes. -->
   <Style Selector="Window">
     <Setter Property="FontFamily" Value="{StaticResource KidFont}" />
     <Setter Property="Background" Value="{StaticResource CreamBrush}" />
     <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
   </Style>
 
-  <!-- Big round buttons the child taps (Start, Play again, Keep going). -->
-  <Style Selector="Button.big-round">
-    <Setter Property="Width" Value="200" />
-    <Setter Property="Height" Value="200" />
-    <Setter Property="CornerRadius" Value="100" />
-    <Setter Property="Background" Value="{StaticResource BeeYellowBrush}" />
-    <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
-    <Setter Property="BorderBrush" Value="{StaticResource BeeAmberBrush}" />
-    <Setter Property="BorderThickness" Value="6" />
-    <Setter Property="HorizontalContentAlignment" Value="Center" />
-    <Setter Property="VerticalContentAlignment" Value="Center" />
-    <Setter Property="Cursor" Value="Hand" />
-  </Style>
-  <Style Selector="Button.big-round.small">
-    <Setter Property="Width" Value="140" />
-    <Setter Property="Height" Value="140" />
-    <Setter Property="CornerRadius" Value="70" />
-    <Setter Property="Background" Value="{StaticResource CardBrush}" />
-  </Style>
-  <Style Selector="Button.big-round:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-    <Setter Property="Background" Value="{StaticResource BeeAmberBrush}" />
-    <Setter Property="BorderBrush" Value="{StaticResource BeeAmberBrush}" />
-  </Style>
-  <Style Selector="Button.big-round PathIcon">
-    <Setter Property="Width" Value="96" />
-    <Setter Property="Height" Value="96" />
-  </Style>
-  <Style Selector="Button.big-round.small PathIcon">
-    <Setter Property="Width" Value="64" />
-    <Setter Property="Height" Value="64" />
-  </Style>
-
-  <!-- Home button on the game screen. -->
-  <Style Selector="Button.home">
-    <Setter Property="Width" Value="64" />
-    <Setter Property="Height" Value="64" />
-    <Setter Property="CornerRadius" Value="32" />
-    <Setter Property="Background" Value="{StaticResource CardBrush}" />
-    <Setter Property="BorderBrush" Value="#CFC7B4" />
-    <Setter Property="BorderThickness" Value="3" />
-    <Setter Property="HorizontalContentAlignment" Value="Center" />
-    <Setter Property="VerticalContentAlignment" Value="Center" />
-  </Style>
-  <Style Selector="Button.home PathIcon">
-    <Setter Property="Width" Value="32" />
-    <Setter Property="Height" Value="32" />
-  </Style>
-
-  <!-- Start menu. -->
+  <!-- Text hierarchy: title, screen title, label, detail. -->
   <Style Selector="TextBlock.title">
     <Setter Property="FontSize" Value="72" />
     <Setter Property="FontWeight" Value="Bold" />
     <Setter Property="VerticalAlignment" Value="Center" />
   </Style>
   <Style Selector="TextBlock.screen-title">
-    <Setter Property="FontSize" Value="48" />
+    <Setter Property="FontSize" Value="44" />
     <Setter Property="FontWeight" Value="Bold" />
-    <Setter Property="HorizontalAlignment" Value="Center" />
-    <Setter Property="VerticalAlignment" Value="Center" />
-  </Style>
-  <Style Selector="Button.menu-item">
-    <Setter Property="HorizontalAlignment" Value="Stretch" />
-    <Setter Property="MinHeight" Value="104" />
-    <Setter Property="Padding" Value="28,14" />
-    <Setter Property="CornerRadius" Value="28" />
-    <Setter Property="Background" Value="{StaticResource CardBrush}" />
-    <Setter Property="BorderBrush" Value="#D9D2C0" />
-    <Setter Property="BorderThickness" Value="4" />
-  </Style>
-  <Style Selector="Border.menu-item">
-    <Setter Property="HorizontalAlignment" Value="Stretch" />
-    <Setter Property="MinHeight" Value="104" />
-    <Setter Property="Padding" Value="28,14" />
-    <Setter Property="CornerRadius" Value="28" />
-    <Setter Property="Background" Value="{StaticResource CardBrush}" />
-    <Setter Property="BorderBrush" Value="#D9D2C0" />
-    <Setter Property="BorderThickness" Value="4" />
-  </Style>
-  <Style Selector="Button.menu-item">
-    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-    <Setter Property="VerticalContentAlignment" Value="Center" />
-    <Setter Property="Cursor" Value="Hand" />
-  </Style>
-  <Style Selector="Button.menu-item.play">
-    <Setter Property="Background" Value="{StaticResource BeeYellowBrush}" />
-    <Setter Property="BorderBrush" Value="{StaticResource BeeAmberBrush}" />
-  </Style>
-  <Style Selector="Button.menu-item:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-    <Setter Property="BorderBrush" Value="{StaticResource BeeAmberBrush}" />
-  </Style>
-  <!-- Buttons only: the Settings row's lock sizes itself inside its ring. -->
-  <Style Selector="Button.menu-item PathIcon">
-    <Setter Property="Width" Value="56" />
-    <Setter Property="Height" Value="56" />
-    <Setter Property="Margin" Value="0,0,24,0" />
+    <Setter Property="TextAlignment" Value="Center" />
+    <Setter Property="TextWrapping" Value="Wrap" />
     <Setter Property="VerticalAlignment" Value="Center" />
   </Style>
   <Style Selector="TextBlock.menu-label">
     <Setter Property="FontSize" Value="40" />
     <Setter Property="FontWeight" Value="Bold" />
-    <Setter Property="VerticalAlignment" Value="Center" />
   </Style>
   <Style Selector="TextBlock.menu-detail">
     <Setter Property="FontSize" Value="20" />
     <Setter Property="Foreground" Value="{StaticResource SoftInkBrush}" />
   </Style>
-
-  <!-- Choose words: one card per saved list. -->
-  <Style Selector="Button.list-card">
-    <Setter Property="Width" Value="300" />
-    <Setter Property="Margin" Value="12" />
-    <Setter Property="Padding" Value="24,18" />
-    <Setter Property="CornerRadius" Value="24" />
-    <Setter Property="Background" Value="{StaticResource CardBrush}" />
-    <Setter Property="BorderBrush" Value="#D9D2C0" />
-    <Setter Property="BorderThickness" Value="4" />
-    <Setter Property="HorizontalContentAlignment" Value="Center" />
-    <Setter Property="Cursor" Value="Hand" />
+  <Style Selector="TextBlock.status">
+    <Setter Property="FontSize" Value="22" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="Foreground" Value="{StaticResource SoftInkBrush}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
   </Style>
-  <Style Selector="Button.list-card.chosen">
-    <Setter Property="Background" Value="#E3EDFF" />
+
+  <!-- Choose words: list row text. -->
+  <Style Selector="Button.list-row TextBlock.list-name">
+    <Setter Property="FontSize" Value="34" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+  <Style Selector="Button.list-row TextBlock.list-detail">
+    <Setter Property="FontSize" Value="20" />
+    <Setter Property="Foreground" Value="{StaticResource SoftInkBrush}" />
+    <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+  </Style>
+
+  <!-- Progress badges: one same-size circle per word, no letters. -->
+  <Style Selector="Border.word-badge">
+    <Setter Property="Width" Value="44" />
+    <Setter Property="Height" Value="44" />
+    <Setter Property="Margin" Value="6" />
+    <Setter Property="CornerRadius" Value="22" />
+    <Setter Property="BorderThickness" Value="3" />
+    <Setter Property="BorderBrush" Value="{StaticResource EdgeBrush}" />
+    <Setter Property="Background" Value="{StaticResource CardBrush}" />
+  </Style>
+  <Style Selector="Border.word-badge PathIcon">
+    <Setter Property="Width" Value="24" />
+    <Setter Property="Height" Value="24" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+  <Style Selector="Border.word-badge.current">
     <Setter Property="BorderBrush" Value="{StaticResource CurrentBlueBrush}" />
     <Setter Property="BorderThickness" Value="6" />
+    <Setter Property="Background" Value="{StaticResource CurrentTintBrush}" />
   </Style>
-  <Style Selector="Button.list-card TextBlock">
-    <Setter Property="HorizontalAlignment" Value="Center" />
-    <Setter Property="TextAlignment" Value="Center" />
-    <Setter Property="TextWrapping" Value="Wrap" />
-  </Style>
-  <Style Selector="Button.list-card TextBlock.list-name">
-    <Setter Property="FontSize" Value="34" />
-    <Setter Property="FontWeight" Value="Bold" />
-  </Style>
-  <Style Selector="Button.list-card TextBlock.list-count">
-    <Setter Property="FontSize" Value="18" />
-    <Setter Property="Foreground" Value="{StaticResource SoftInkBrush}" />
-  </Style>
-  <Style Selector="Button.list-card TextBlock.list-preview">
-    <Setter Property="FontSize" Value="22" />
-  </Style>
-
-  <!-- Word strip: one tile per word. -->
-  <Style Selector="Border.word-tile">
-    <Setter Property="Background" Value="{StaticResource CardBrush}" />
-    <Setter Property="BorderBrush" Value="#D9D2C0" />
-    <Setter Property="BorderThickness" Value="3" />
-    <Setter Property="CornerRadius" Value="16" />
-    <Setter Property="Padding" Value="18,8" />
-    <Setter Property="Margin" Value="6" />
-    <Setter Property="MinWidth" Value="110" />
-  </Style>
-  <Style Selector="Border.word-tile TextBlock">
-    <Setter Property="FontSize" Value="34" />
-    <Setter Property="FontWeight" Value="Bold" />
-    <Setter Property="HorizontalAlignment" Value="Center" />
-  </Style>
-  <Style Selector="Border.word-tile.missed">
-    <Setter Property="Background" Value="#FFE9D2" />
-    <Setter Property="BorderBrush" Value="{StaticResource MissedOrangeBrush}" />
-  </Style>
-  <Style Selector="Border.word-tile.missed TextBlock">
-    <Setter Property="Foreground" Value="{StaticResource MissedOrangeBrush}" />
-  </Style>
-  <Style Selector="Border.word-tile.right">
+  <Style Selector="Border.word-badge.right">
     <Setter Property="Background" Value="{StaticResource RightGreenBrush}" />
     <Setter Property="BorderBrush" Value="{StaticResource RightGreenBrush}" />
   </Style>
-  <Style Selector="Border.word-tile.right TextBlock">
+  <Style Selector="Border.word-badge.missed">
+    <Setter Property="Background" Value="{StaticResource MissedOrangeBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource MissedOrangeBrush}" />
+  </Style>
+  <Style Selector="Border.word-badge.missed.current">
+    <Setter Property="BorderBrush" Value="{StaticResource CurrentBlueBrush}" />
+  </Style>
+
+  <!-- Status: a light and a word on one line, saying whether to listen, wait, or spell now. -->
+  <Style Selector="StackPanel.status-row">
+    <Setter Property="Orientation" Value="Horizontal" />
+    <Setter Property="Spacing" Value="20" />
+  </Style>
+  <Style Selector="Border.status-light">
+    <Setter Property="Width" Value="96" />
+    <Setter Property="Height" Value="96" />
+    <Setter Property="CornerRadius" Value="48" />
+  </Style>
+  <Style Selector="Border.status-light PathIcon">
+    <Setter Property="Width" Value="56" />
+    <Setter Property="Height" Value="56" />
     <Setter Property="Foreground" Value="White" />
   </Style>
-  <Style Selector="Border.word-tile.current">
-    <Setter Property="BorderBrush" Value="{StaticResource CurrentBlueBrush}" />
-    <Setter Property="BorderThickness" Value="6" />
-    <Setter Property="Background" Value="#E3EDFF" />
+  <Style Selector="Border.status-light.speaking">
+    <Setter Property="Background" Value="{StaticResource BeeYellowBrush}" />
+  </Style>
+  <Style Selector="Border.status-light.speaking PathIcon">
+    <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
+  </Style>
+  <Style Selector="Border.status-light.waiting">
+    <Setter Property="Background" Value="{StaticResource WaitGreyBrush}" />
+  </Style>
+  <Style Selector="Border.status-light.your-turn">
+    <Setter Property="Background" Value="{StaticResource RightGreenBrush}" />
+  </Style>
+  <Style Selector="TextBlock.status-word">
+    <Setter Property="FontSize" Value="48" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <!-- Answer strip: a line the letters sit on, filled from the leading edge. One letter tall,
+       so it takes little room before the child starts. -->
+  <Style Selector="Border.answer-strip">
+    <Setter Property="MinHeight" Value="148" />
+    <Setter Property="BorderThickness" Value="0,0,0,4" />
+    <Setter Property="BorderBrush" Value="{StaticResource EdgeBrush}" />
   </Style>
 
   <!-- Answer letters: the big boxes in the middle. -->
   <Style Selector="Border.letter-box">
-    <Setter Property="Width" Value="120" />
-    <Setter Property="Height" Value="140" />
+    <Setter Property="Width" Value="112" />
+    <Setter Property="Height" Value="132" />
     <Setter Property="Margin" Value="8" />
     <Setter Property="CornerRadius" Value="20" />
     <Setter Property="BorderThickness" Value="5" />
-    <Setter Property="BorderBrush" Value="#CFC7B4" />
-    <Setter Property="Background" Value="{StaticResource CardBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource EdgeBrush}" />
+    <Setter Property="Background" Value="{StaticResource CreamBrush}" />
   </Style>
   <Style Selector="Border.letter-box TextBlock">
-    <Setter Property="FontSize" Value="96" />
+    <Setter Property="FontSize" Value="88" />
     <Setter Property="FontWeight" Value="Bold" />
     <Setter Property="HorizontalAlignment" Value="Center" />
     <Setter Property="VerticalAlignment" Value="Center" />
@@ -211,60 +149,20 @@
     <Setter Property="Foreground" Value="White" />
   </Style>
   <Style Selector="Border.letter-box.correction">
-    <Setter Property="Background" Value="#FFE9D2" />
+    <Setter Property="Background" Value="{StaticResource MissedTintBrush}" />
     <Setter Property="BorderBrush" Value="{StaticResource MissedOrangeBrush}" />
   </Style>
   <Style Selector="Border.letter-box.teaching">
-    <Setter Property="Background" Value="#EEE8FF" />
+    <Setter Property="Background" Value="{StaticResource TeachTintBrush}" />
     <Setter Property="BorderBrush" Value="{StaticResource TeachPurpleBrush}" />
   </Style>
 
-  <!-- On-screen keyboard keys. -->
-  <Style Selector="Button.key">
-    <Setter Property="Width" Value="84" />
-    <Setter Property="Height" Value="76" />
-    <Setter Property="Margin" Value="5" />
-    <Setter Property="CornerRadius" Value="14" />
-    <Setter Property="FontSize" Value="40" />
-    <Setter Property="FontWeight" Value="Bold" />
-    <Setter Property="Background" Value="{StaticResource CardBrush}" />
-    <Setter Property="BorderBrush" Value="#CFC7B4" />
-    <Setter Property="BorderThickness" Value="3" />
-    <Setter Property="HorizontalContentAlignment" Value="Center" />
-    <Setter Property="VerticalContentAlignment" Value="Center" />
-  </Style>
-  <Style Selector="Button.key PathIcon">
-    <Setter Property="Width" Value="40" />
-    <Setter Property="Height" Value="40" />
-  </Style>
-  <Style Selector="Button.key.done">
-    <Setter Property="Background" Value="{StaticResource RightGreenBrush}" />
-    <Setter Property="Foreground" Value="White" />
-  </Style>
-
-  <!-- Grown-up ✓ / ✗ override buttons. -->
-  <Style Selector="Button.verdict">
-    <Setter Property="Width" Value="72" />
-    <Setter Property="Height" Value="72" />
-    <Setter Property="CornerRadius" Value="36" />
-    <Setter Property="Margin" Value="8" />
-    <Setter Property="Foreground" Value="White" />
-    <Setter Property="HorizontalContentAlignment" Value="Center" />
-    <Setter Property="VerticalContentAlignment" Value="Center" />
-  </Style>
-  <Style Selector="Button.verdict.right">
-    <Setter Property="Background" Value="{StaticResource RightGreenBrush}" />
-  </Style>
-  <Style Selector="Button.verdict.wrong">
-    <Setter Property="Background" Value="{StaticResource MissedOrangeBrush}" />
-  </Style>
-
-  <!-- A gentle pulse for "I'm listening" and "tap me". -->
+  <!-- A gentle pulse for "your turn" and "tap me". -->
   <Style Selector=":is(Control).pulse">
     <Style.Animations>
       <Animation Duration="0:0:0.9" IterationCount="Infinite" PlaybackDirection="Alternate">
         <KeyFrame Cue="0%">
-          <Setter Property="Opacity" Value="0.45" />
+          <Setter Property="Opacity" Value="0.55" />
         </KeyFrame>
         <KeyFrame Cue="100%">
           <Setter Property="Opacity" Value="1" />
@@ -273,19 +171,31 @@
     </Style.Animations>
   </Style>
 
-  <!-- Grown-up area: normal-sized, readable controls. -->
+  <!-- Grown-up area: standard macOS sizes (13 pt default, never below 10). -->
   <Style Selector="TextBlock.heading">
-    <Setter Property="FontSize" Value="30" />
+    <Setter Property="FontSize" Value="28" />
     <Setter Property="FontWeight" Value="Bold" />
   </Style>
-  <Style Selector="TextBlock.label">
-    <Setter Property="FontSize" Value="17" />
+  <Style Selector="TextBlock.section">
+    <Setter Property="FontSize" Value="20" />
     <Setter Property="FontWeight" Value="Bold" />
-    <Setter Property="Margin" Value="0,14,0,6" />
+    <Setter Property="Margin" Value="0,0,0,8" />
+  </Style>
+  <Style Selector="TextBlock.label">
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="Margin" Value="0,16,0,6" />
   </Style>
   <Style Selector="TextBlock.hint">
     <Setter Property="FontSize" Value="14" />
     <Setter Property="Foreground" Value="{StaticResource SoftInkBrush}" />
     <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+  <Style Selector="Border.settings-group">
+    <Setter Property="Background" Value="{StaticResource CardBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource EdgeBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="12" />
+    <Setter Property="Padding" Value="20" />
   </Style>
 </Styles>

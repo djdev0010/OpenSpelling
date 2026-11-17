@@ -39,9 +39,14 @@ public sealed class SherpaLetterListener(
         using var segmenter = new SpeechSegmenter(modelFiles, tuning);
         var recording = new AnswerRecording(tuning);
         bool wasSpeaking = false;
+        bool hasHeardFirstSamples = false;
 
         await foreach (var samples in microphone.CaptureSamplesAsync(LetterSpeechRecognizer.SampleRate, cancellationToken))
         {
+            // Opening the microphone takes a moment; only now can the child be heard.
+            if (!hasHeardFirstSamples) yield return new ListeningStarted();
+            hasHeardFirstSamples = true;
+
             recording.AddMicrophoneSamples(samples);
             var finishedSpeech = segmenter.AddSamplesAndTakeFinishedSpeech(samples);
             if (segmenter.IsSpeechHappening && !wasSpeaking) yield return new SpeechStarted();

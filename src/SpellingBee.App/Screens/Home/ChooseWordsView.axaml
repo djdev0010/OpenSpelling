@@ -6,34 +6,36 @@
              x:Name="Root">
   <Grid RowDefinitions="Auto,*" Margin="24">
 
-    <!-- Back to the start menu, and the screen title. -->
-    <Grid ColumnDefinitions="Auto,*,Auto">
-      <Button Classes="home" Command="{Binding GoBackCommand}">
+    <!-- Back and the question, both on the leading side. -->
+    <!-- A Grid, not a StackPanel, so the question wraps on a narrow screen instead of being cut off. -->
+    <Grid ColumnDefinitions="Auto,*">
+      <Button Classes="toolbar" Command="{Binding GoBackCommand}" VerticalAlignment="Top"
+              ToolTip.Tip="Back" AutomationProperties.Name="Back">
         <PathIcon Data="{StaticResource BackIcon}" />
       </Button>
-      <TextBlock Grid.Column="1" Classes="screen-title" Text="{Binding Heading}"
-                 TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center" />
-      <Panel Grid.Column="2" Width="64" />
+      <TextBlock Grid.Column="1" Classes="screen-title" Text="{Binding Heading}" TextAlignment="Left" Margin="24,0,0,0" />
     </Grid>
 
-    <!-- One card per saved list; the chosen one is outlined in blue. -->
-    <ScrollViewer Grid.Row="1" Margin="0,24,0,0">
-      <ItemsControl ItemsSource="{Binding SpellingLists}" HorizontalAlignment="Center">
-        <ItemsControl.ItemsPanel>
-          <ItemsPanelTemplate>
-            <WrapPanel HorizontalAlignment="Center" />
-          </ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
+    <!-- The saved lists, one row each, from the top. Last time's list has a blue outline and a tick. -->
+    <ScrollViewer Grid.Row="1" Margin="88,32,88,0">
+      <ItemsControl ItemsSource="{Binding SpellingLists}">
         <ItemsControl.ItemTemplate>
           <DataTemplate x:DataType="home:SpellingListCardViewModel">
-            <Button Classes="list-card" Classes.chosen="{Binding IsChosen}"
+            <Button Classes="list-row" Classes.chosen="{Binding IsChosen}"
                     Command="{Binding #Root.((home:ChooseWordsViewModel)DataContext).ChooseSpellingListCommand}"
                     CommandParameter="{Binding}">
-              <StackPanel Spacing="4">
-                <TextBlock Classes="list-name" Text="{Binding Name}" />
-                <TextBlock Classes="list-count" Text="{Binding WordCountText}" />
-                <TextBlock Classes="list-preview" Text="{Binding WordsPreview}" />
-              </StackPanel>
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Classes="list-name" Text="{Binding Name}" />
+                  <TextBlock Classes="list-detail">
+                    <Run Text="{Binding WordCountText}" />
+                    <Run Text="  ·  " />
+                    <Run Text="{Binding WordsPreview}" />
+                  </TextBlock>
+                </StackPanel>
+                <PathIcon Grid.Column="1" Data="{StaticResource CheckIcon}" Width="36" Height="36" Margin="24,0,0,0"
+                          Foreground="{StaticResource CurrentBlueBrush}" IsVisible="{Binding IsChosen}" />
+              </Grid>
             </Button>
           </DataTemplate>
         </ItemsControl.ItemTemplate>

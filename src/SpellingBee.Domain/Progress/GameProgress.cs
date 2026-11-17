@@ -13,9 +13,6 @@ public sealed record GameProgress(IReadOnlyList<WordProgress> Words, int Round)
 
     public bool IsComplete => Words.Count > 0 && Words.All(word => word.State == WordState.SpelledRight);
 
-    public bool IsForWordList(IReadOnlyList<string> words) =>
-        Words.Select(word => word.Word).SequenceEqual(words);
-
     /// <summary>The next word to try in this round, or null when the round is over.</summary>
     public string? FindNextWordInRound() =>
         Words.FirstOrDefault(word => word.State != WordState.SpelledRight && word.LastRoundTried < Round)?.Word;
