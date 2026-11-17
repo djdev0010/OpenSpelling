@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:grownUp="using:SpellingBee.App.Screens.GrownUp"
+             xmlns:voice="using:SpellingBee.Application.Ports.Speech"
+             x:Class="SpellingBee.App.Screens.GrownUp.VoicePickerView"
+             x:DataType="grownUp:VoicePickerViewModel">
+  <StackPanel>
+    <TextBlock Classes="label" Text="Voice" />
+    <ComboBox ItemsSource="{Binding Voices}" SelectedItem="{Binding SelectedVoice}" MinWidth="320">
+      <ComboBox.ItemTemplate>
+        <DataTemplate x:DataType="voice:VoiceOption">
+          <TextBlock Text="{Binding DisplayName}" />
+        </DataTemplate>
+      </ComboBox.ItemTemplate>
+    </ComboBox>
+
+    <TextBlock Classes="label" Text="Speed" />
+    <Grid ColumnDefinitions="Auto,*,Auto">
+      <TextBlock Text="Slower" VerticalAlignment="Center" Margin="0,0,10,0" />
+      <Slider Grid.Column="1" Minimum="{Binding SlowestSpeed}" Maximum="{Binding FastestSpeed}"
+              Value="{Binding Speed}" TickFrequency="0.05" IsSnapToTickEnabled="True" />
+      <TextBlock Grid.Column="2" Text="Faster" VerticalAlignment="Center" Margin="10,0,0,0" />
+    </Grid>
+
+    <Button Command="{Binding TestVoiceCommand}" Margin="0,8,0,0">
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <PathIcon Data="{StaticResource SpeakerIcon}" Width="18" Height="18" />
+        <TextBlock Text="Test voice" />
+      </StackPanel>
+    </Button>
+  </StackPanel>
+</UserControl>

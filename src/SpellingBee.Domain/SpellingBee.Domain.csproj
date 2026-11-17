@@ -1,0 +1,3 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The rules of spelling practice. Pure .NET: no project references, no packages, no I/O. -->
+</Project>

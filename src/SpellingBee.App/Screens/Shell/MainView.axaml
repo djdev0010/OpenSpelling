@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:shell="using:SpellingBee.App.Screens.Shell"
+             xmlns:game="using:SpellingBee.App.Screens.Game"
+             xmlns:grownUp="using:SpellingBee.App.Screens.GrownUp"
+             xmlns:home="using:SpellingBee.App.Screens.Home"
+             x:Class="SpellingBee.App.Screens.Shell.MainView"
+             x:DataType="shell:ShellViewModel">
+  <ContentControl Content="{Binding CurrentScreen}">
+    <ContentControl.DataTemplates>
+      <DataTemplate DataType="home:HomeViewModel">
+        <home:HomeView />
+      </DataTemplate>
+      <DataTemplate DataType="home:ChooseWordsViewModel">
+        <home:ChooseWordsView />
+      </DataTemplate>
+      <DataTemplate DataType="game:GameViewModel">
+        <game:GameView />
+      </DataTemplate>
+      <DataTemplate DataType="grownUp:GrownUpViewModel">
+        <grownUp:GrownUpView />
+      </DataTemplate>
+    </ContentControl.DataTemplates>
+  </ContentControl>
+</UserControl>

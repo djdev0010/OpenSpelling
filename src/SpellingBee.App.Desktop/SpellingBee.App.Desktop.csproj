@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The Mac app: starts the shared app with the Mac adapters (sherpa-onnx, PortAudio, macOS). -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>SpellingBee.App.Desktop</RootNamespace>
+    <ApplicationIcon />
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Desktop" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SpellingBee.App/SpellingBee.App.csproj" />
+    <ProjectReference Include="../SpellingBee.Infrastructure.Files/SpellingBee.Infrastructure.Files.csproj" />
+    <ProjectReference Include="../SpellingBee.Infrastructure.Sherpa/SpellingBee.Infrastructure.Sherpa.csproj" />
+    <ProjectReference Include="../SpellingBee.Infrastructure.PortAudio/SpellingBee.Infrastructure.PortAudio.csproj" />
+    <ProjectReference Include="../SpellingBee.Infrastructure.MacOS/SpellingBee.Infrastructure.MacOS.csproj" />
+  </ItemGroup>
+</Project>

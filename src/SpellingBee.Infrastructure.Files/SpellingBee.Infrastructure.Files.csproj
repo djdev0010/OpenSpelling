@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Files on this device: settings, progress, cached speech and the heard-answer log. -->
+  <ItemGroup>
+    <ProjectReference Include="../SpellingBee.Application/SpellingBee.Application.csproj" />
+  </ItemGroup>
+</Project>

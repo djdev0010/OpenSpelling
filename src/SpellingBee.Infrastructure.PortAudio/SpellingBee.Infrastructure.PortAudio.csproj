@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="PortAudioSharp2" />
+    <ProjectReference Include="../SpellingBee.Application/SpellingBee.Application.csproj" />
+  </ItemGroup>
+</Project>

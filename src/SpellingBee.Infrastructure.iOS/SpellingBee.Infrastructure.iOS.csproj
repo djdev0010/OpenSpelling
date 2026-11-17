@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- iPad adapters: speaker, microphone and microphone permission through AVFoundation. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0-ios</TargetFramework>
+    <SupportedOSPlatformVersion>17.0</SupportedOSPlatformVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SpellingBee.Application/SpellingBee.Application.csproj" />
+  </ItemGroup>
+</Project>

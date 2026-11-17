@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:game="using:SpellingBee.App.Screens.Game"
+             x:Class="SpellingBee.App.Screens.Game.AnswerLettersView"
+             x:DataType="game:AnswerLettersViewModel">
+  <ItemsControl ItemsSource="{Binding Boxes}" HorizontalAlignment="Center">
+    <ItemsControl.ItemsPanel>
+      <ItemsPanelTemplate>
+        <WrapPanel HorizontalAlignment="Center" />
+      </ItemsPanelTemplate>
+    </ItemsControl.ItemsPanel>
+    <ItemsControl.ItemTemplate>
+      <DataTemplate x:DataType="game:LetterBoxViewModel">
+        <Border Classes="letter-box"
+                Classes.heard="{Binding IsHeard}"
+                Classes.right="{Binding IsRight}"
+                Classes.correction="{Binding IsCorrection}"
+                Classes.teaching="{Binding IsTeaching}">
+          <TextBlock Text="{Binding Letter}" />
+        </Border>
+      </DataTemplate>
+    </ItemsControl.ItemTemplate>
+  </ItemsControl>
+</UserControl>

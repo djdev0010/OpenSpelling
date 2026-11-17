@@ -20,7 +20,7 @@ scripts/get-models.sh
 ```
 
 ```bash
-dotnet run --project src/SpellingBee.App
+dotnet run --project src/SpellingBee.App.Desktop
 ```
 
 The first time it listens, macOS asks for microphone permission. If permission is
@@ -35,6 +35,40 @@ scripts/bundle-mac.sh
 This creates `dist/Spelling Bee.app`. It is self-contained (no .NET needed), has the
 models inside, and is signed ad hoc so it runs on this Mac. To share it with other Macs
 it needs a Developer ID signature and notarization.
+
+## Build the iPad app
+
+The iPad app uses the same screens, voice and recognizer as the Mac app.
+
+### Prerequisites
+
+- Xcode, with an iPad simulator.
+- The .NET iOS workload:
+
+  ```bash
+  sudo dotnet workload install ios
+  ```
+
+- The models from [Get started](#get-started).
+
+### Run it in the iPad simulator
+
+1. Build the speech engine for iPad. This takes 20–40 minutes the first time:
+
+   ```bash
+   scripts/build-sherpa-ios.sh
+   ```
+
+2. Build and start the app in a simulator:
+
+   ```bash
+   dotnet build src/SpellingBee.App.iOS -t:Run -r iossimulator-arm64
+   ```
+
+> [!NOTE]
+> The models make the iPad app about 800 MB. To install it on a real iPad, sign in to Xcode with
+> your Apple ID. A free account works, but the app stops opening after 7 days until you install
+> it again; a paid Apple Developer account avoids that.
 
 ## Using it
 
@@ -65,5 +99,8 @@ src/SpellingBee.Infrastructure.Files      settings, progress, speech cache and l
 src/SpellingBee.Infrastructure.Sherpa     Kokoro voice + Parakeet listener (sherpa-onnx)
 src/SpellingBee.Infrastructure.PortAudio  microphone and speaker
 src/SpellingBee.Infrastructure.MacOS      mic permission, system voice fallback
-src/SpellingBee.App                       Avalonia screens + composition root
+src/SpellingBee.Infrastructure.iOS        iPad speaker, microphone and mic permission (AVFoundation)
+src/SpellingBee.App                       shared Avalonia screens + composition of use cases
+src/SpellingBee.App.Desktop               Mac app: starts the shared app with the Mac adapters
+src/SpellingBee.App.iOS                   iPad app: starts the shared app with the iPad adapters
 ```

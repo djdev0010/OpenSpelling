@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SpellingBee.Domain/SpellingBee.Domain.csproj" />
+    <Project Path="src/SpellingBee.Application/SpellingBee.Application.csproj" />
+    <Project Path="src/SpellingBee.Infrastructure.Files/SpellingBee.Infrastructure.Files.csproj" />
+    <Project Path="src/SpellingBee.Infrastructure.Sherpa/SpellingBee.Infrastructure.Sherpa.csproj" />
+    <Project Path="src/SpellingBee.Infrastructure.PortAudio/SpellingBee.Infrastructure.PortAudio.csproj" />
+    <Project Path="src/SpellingBee.Infrastructure.iOS/SpellingBee.Infrastructure.iOS.csproj" />
+    <Project Path="src/SpellingBee.Infrastructure.MacOS/SpellingBee.Infrastructure.MacOS.csproj" />
+    <Project Path="src/SpellingBee.Infrastructure.iOS/SpellingBee.Infrastructure.iOS.csproj" />
+    <Project Path="src/SpellingBee.App/SpellingBee.App.csproj" />
+    <Project Path="src/SpellingBee.App.Desktop/SpellingBee.App.Desktop.csproj" />
+    <Project Path="src/SpellingBee.App.iOS/SpellingBee.App.iOS.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,27 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- High contrast, warm and friendly. Text is dark ink on cream. -->
+  <Color x:Key="CreamColor">#FFF8E7</Color>
+  <Color x:Key="InkColor">#1F2933</Color>
+  <Color x:Key="SoftInkColor">#52606D</Color>
+  <Color x:Key="CardColor">#FFFFFF</Color>
+  <Color x:Key="BeeYellowColor">#FFC93C</Color>
+  <Color x:Key="BeeAmberColor">#E89B00</Color>
+  <Color x:Key="RightGreenColor">#2E9E5B</Color>
+  <Color x:Key="MissedOrangeColor">#F08A24</Color>
+  <Color x:Key="CurrentBlueColor">#2F6FDB</Color>
+  <Color x:Key="TeachPurpleColor">#7B5CD6</Color>
+
+  <SolidColorBrush x:Key="CreamBrush" Color="{StaticResource CreamColor}" />
+  <SolidColorBrush x:Key="InkBrush" Color="{StaticResource InkColor}" />
+  <SolidColorBrush x:Key="SoftInkBrush" Color="{StaticResource SoftInkColor}" />
+  <SolidColorBrush x:Key="CardBrush" Color="{StaticResource CardColor}" />
+  <SolidColorBrush x:Key="BeeYellowBrush" Color="{StaticResource BeeYellowColor}" />
+  <SolidColorBrush x:Key="BeeAmberBrush" Color="{StaticResource BeeAmberColor}" />
+  <SolidColorBrush x:Key="RightGreenBrush" Color="{StaticResource RightGreenColor}" />
+  <SolidColorBrush x:Key="MissedOrangeBrush" Color="{StaticResource MissedOrangeColor}" />
+  <SolidColorBrush x:Key="CurrentBlueBrush" Color="{StaticResource CurrentBlueColor}" />
+  <SolidColorBrush x:Key="TeachPurpleBrush" Color="{StaticResource TeachPurpleColor}" />
+
+  <FontFamily x:Key="KidFont">avares://SpellingBee.App/Assets/Fonts#Andika</FontFamily>
+</ResourceDictionary>

@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:home="using:SpellingBee.App.Screens.Home"
+             xmlns:shared="using:SpellingBee.App.Shared"
+             x:Class="SpellingBee.App.Screens.Home.HomeView"
+             x:DataType="home:HomeViewModel">
+  <Grid RowDefinitions="Auto,*" Margin="24">
+
+    <!-- Title. -->
+    <StackPanel Orientation="Horizontal" Spacing="18" HorizontalAlignment="Center" Margin="0,32,0,0">
+      <PathIcon Data="{StaticResource StarIcon}" Width="56" Height="56" Foreground="{StaticResource BeeYellowBrush}" />
+      <TextBlock Classes="title" Text="Spelling Bee" />
+      <PathIcon Data="{StaticResource StarIcon}" Width="56" Height="56" Foreground="{StaticResource BeeYellowBrush}" />
+    </StackPanel>
+
+    <!-- The start menu. -->
+    <StackPanel Grid.Row="1" Spacing="18" Width="600" VerticalAlignment="Center">
+      <Button Classes="menu-item play" Command="{Binding StartSpellingCommand}">
+        <Grid ColumnDefinitions="Auto,*">
+          <PathIcon Data="{StaticResource PlayIcon}" />
+          <StackPanel Grid.Column="1">
+            <TextBlock Classes="menu-label" Text="Play" />
+            <TextBlock Classes="menu-detail" Text="Pick your words, then spell them" />
+          </StackPanel>
+        </Grid>
+      </Button>
+
+      <Button Classes="menu-item" Command="{Binding StartListenAndLearnCommand}">
+        <Grid ColumnDefinitions="Auto,*">
+          <PathIcon Data="{StaticResource EarIcon}" Foreground="{StaticResource TeachPurpleBrush}" />
+          <StackPanel Grid.Column="1">
+            <TextBlock Classes="menu-label" Text="Listen and learn" />
+            <TextBlock Classes="menu-detail" Text="Hear each word spelled, then spell them" />
+          </StackPanel>
+        </Grid>
+      </Button>
+
+      <!-- Settings are for grown-ups, so they open only after holding the lock for 3 seconds. -->
+      <Border Classes="menu-item">
+        <Grid ColumnDefinitions="Auto,*">
+          <!-- 64 wide, so pull it 4 left to centre it under the 56-wide icons above and line up the label. -->
+          <shared:HoldToOpenButton Command="{Binding OpenGrownUpAreaCommand}" Margin="-4,0,20,0" />
+          <StackPanel Grid.Column="1" VerticalAlignment="Center">
+            <TextBlock Classes="menu-label" Text="Settings" />
+            <TextBlock Classes="menu-detail" Text="For grown-ups: press and hold the lock" />
+          </StackPanel>
+        </Grid>
+      </Border>
+    </StackPanel>
+  </Grid>
+</UserControl>

@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:home="using:SpellingBee.App.Screens.Home"
+             x:Class="SpellingBee.App.Screens.Home.ChooseWordsView"
+             x:DataType="home:ChooseWordsViewModel"
+             x:Name="Root">
+  <Grid RowDefinitions="Auto,*" Margin="24">
+
+    <!-- Back to the start menu, and the screen title. -->
+    <Grid ColumnDefinitions="Auto,*,Auto">
+      <Button Classes="home" Command="{Binding GoBackCommand}">
+        <PathIcon Data="{StaticResource BackIcon}" />
+      </Button>
+      <TextBlock Grid.Column="1" Classes="screen-title" Text="{Binding Heading}"
+                 TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center" />
+      <Panel Grid.Column="2" Width="64" />
+    </Grid>
+
+    <!-- One card per saved list; the chosen one is outlined in blue. -->
+    <ScrollViewer Grid.Row="1" Margin="0,24,0,0">
+      <ItemsControl ItemsSource="{Binding SpellingLists}" HorizontalAlignment="Center">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <WrapPanel HorizontalAlignment="Center" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="home:SpellingListCardViewModel">
+            <Button Classes="list-card" Classes.chosen="{Binding IsChosen}"
+                    Command="{Binding #Root.((home:ChooseWordsViewModel)DataContext).ChooseSpellingListCommand}"
+                    CommandParameter="{Binding}">
+              <StackPanel Spacing="4">
+                <TextBlock Classes="list-name" Text="{Binding Name}" />
+                <TextBlock Classes="list-count" Text="{Binding WordCountText}" />
+                <TextBlock Classes="list-preview" Text="{Binding WordsPreview}" />
+              </StackPanel>
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

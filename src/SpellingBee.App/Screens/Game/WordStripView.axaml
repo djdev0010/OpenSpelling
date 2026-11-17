@@ -1,0 +1,23 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:game="using:SpellingBee.App.Screens.Game"
+             x:Class="SpellingBee.App.Screens.Game.WordStripView"
+             x:DataType="game:WordStripViewModel">
+  <ItemsControl ItemsSource="{Binding Tiles}">
+    <ItemsControl.ItemsPanel>
+      <ItemsPanelTemplate>
+        <WrapPanel HorizontalAlignment="Center" />
+      </ItemsPanelTemplate>
+    </ItemsControl.ItemsPanel>
+    <ItemsControl.ItemTemplate>
+      <DataTemplate x:DataType="game:WordTileViewModel">
+        <Border Classes="word-tile"
+                Classes.current="{Binding IsCurrent}"
+                Classes.right="{Binding IsSpelledRight}"
+                Classes.missed="{Binding IsMissed}">
+          <TextBlock Text="{Binding DisplayText}" />
+        </Border>
+      </DataTemplate>
+    </ItemsControl.ItemTemplate>
+  </ItemsControl>
+</UserControl>

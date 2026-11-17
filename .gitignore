@@ -1,0 +1,38 @@
+# Build output
+bin/
+obj/
+artifacts/
+*.binlog
+
+# Packaged apps (scripts/bundle-mac.sh, iPad builds). Built .app bundles land in bin/ or dist/;
+# there is no "*.app/" rule because macOS ignores case and it would hide src/SpellingBee.App/.
+dist/
+*.ipa
+*.dSYM/
+*.dSYM.zip
+
+# Voice and speech models, downloaded by scripts/get-models.sh (~780 MB)
+models/*
+!models/README.md
+
+# Native libraries built by scripts/build-sherpa-ios.sh
+native/
+
+# Logs
+*.log
+
+# Editors and IDEs: personal settings stay local; shared recommendations are kept
+.vs/
+.idea/
+*.user
+*.suo
+*.DotSettings.user
+.vscode/*
+!.vscode/extensions.json
+xcuserdata/
+
+# Claude Code: the shared hook config (.claude/settings.json) is committed, personal overrides aren't
+.claude/settings.local.json
+
+# macOS
+.DS_Store

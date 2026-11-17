@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The shared app: screens, styles and the composition of use cases. Platform projects
+       (SpellingBee.App.Desktop, SpellingBee.App.iOS) start it and supply the adapters. -->
+  <PropertyGroup>
+    <RootNamespace>SpellingBee.App</RootNamespace>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SpellingBee.Application/SpellingBee.Application.csproj" />
+  </ItemGroup>
+</Project>
