@@ -6,14 +6,20 @@
              x:Name="Root">
   <Grid RowDefinitions="Auto,*" Margin="24">
 
-    <!-- Back and the question, both on the leading side. -->
+    <!-- Back and the question on the leading side, the shuffle switch on the trailing side. -->
     <!-- A Grid, not a StackPanel, so the question wraps on a narrow screen instead of being cut off. -->
-    <Grid ColumnDefinitions="Auto,*">
+    <Grid ColumnDefinitions="Auto,*,Auto">
       <Button Classes="toolbar" Command="{Binding GoBackCommand}" VerticalAlignment="Top"
               ToolTip.Tip="Back" AutomationProperties.Name="Back">
         <PathIcon Data="{StaticResource BackIcon}" />
       </Button>
       <TextBlock Grid.Column="1" Classes="screen-title" Text="{Binding Heading}" TextAlignment="Left" Margin="24,0,0,0" />
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center" Margin="16,0,0,0">
+        <PathIcon Data="{StaticResource ShuffleIcon}" Width="32" Height="32" Foreground="{StaticResource InkBrush}" />
+        <TextBlock Classes="list-name" Text="Shuffle" VerticalAlignment="Center" />
+        <ToggleSwitch IsChecked="{Binding ShuffleWords}" OnContent="" OffContent=""
+                      AutomationProperties.Name="Shuffle the words" VerticalAlignment="Center" />
+      </StackPanel>
     </Grid>
 
     <!-- The saved lists, one row each, from the top. Last time's list has a blue outline and a tick. -->

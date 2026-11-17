@@ -60,6 +60,14 @@ public sealed partial class GameViewModel : ObservableObject
     [ObservableProperty]
     public partial bool ShowGrownUpVerdictButtons { get; set; }
 
+    /// <summary>Typing on the keyboard now; the switch button offers spelling out loud.</summary>
+    [ObservableProperty]
+    public partial bool IsTyping { get; set; }
+
+    /// <summary>The microphone works, so the child can switch between typing and spelling out loud.</summary>
+    [ObservableProperty]
+    public partial bool CanSwitchAnswerMode { get; set; }
+
     [ObservableProperty]
     public partial string ProgressText { get; set; } = "";
 
@@ -85,6 +93,14 @@ public sealed partial class GameViewModel : ObservableObject
 
     [RelayCommand]
     private void KeepGoing() => _playGame.ContinueAfterPause();
+
+    // The word on screen keeps going: only the way of answering changes.
+    [RelayCommand]
+    private async Task SwitchAnswerModeAsync()
+    {
+        await _playGame.SwitchAnswerModeAsync(useKeyboard: !_playGame.IsUsingOnScreenKeyboard, CancellationToken.None);
+        ShowSnapshot(_playGame.State.Current);
+    }
 
     [RelayCommand]
     private void MarkSpelledRight() => _playGame.SendGrownUpVerdict(true);
@@ -134,6 +150,8 @@ public sealed partial class GameViewModel : ObservableObject
         ShowKeyboard = IsPlaying && !isTeaching && !IsWaitingForChild && _playGame.IsUsingOnScreenKeyboard;
         if (ShowKeyboard) Keyboard.ShowChosenLayout();
         ShowGrownUpVerdictButtons = IsListening && _playGame.ShowsGrownUpVerdictButtons && !_playGame.IsUsingOnScreenKeyboard;
+        IsTyping = _playGame.IsUsingOnScreenKeyboard;
+        CanSwitchAnswerMode = IsPlaying && _playGame.CanSpellOutLoud;
         ProgressText = $"{snapshot.Progress.SpelledRightCount} of {snapshot.Progress.Words.Count}";
         RoundText = $"Round {snapshot.Progress.Round}";
 

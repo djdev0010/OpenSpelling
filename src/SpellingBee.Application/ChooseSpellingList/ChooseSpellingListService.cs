@@ -27,5 +27,14 @@ public sealed class ChooseSpellingListService
         await _settings.SaveSettingsAsync(saved with { ActiveListName = listName }, cancellationToken);
     }
 
-    private static SpellingListChoices ToChoices(AppSettings saved) => new(saved.SpellingLists, saved.ActiveList.Name);
+    /// <summary>Remembers whether to play the words in a random order instead of list order.</summary>
+    public async Task ChooseShuffleWordsAsync(bool shuffleWords, CancellationToken cancellationToken)
+    {
+        var saved = _settings.Current;
+        if (saved.ShuffleWords == shuffleWords) return;
+        await _settings.SaveSettingsAsync(saved with { ShuffleWords = shuffleWords }, cancellationToken);
+    }
+
+    private static SpellingListChoices ToChoices(AppSettings saved) =>
+        new(saved.SpellingLists, saved.ActiveList.Name, saved.ShuffleWords);
 }

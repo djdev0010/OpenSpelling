@@ -15,17 +15,11 @@ public sealed class PortAudioMicrophone : IMicrophone
     public async IAsyncEnumerable<float[]> CaptureSamplesAsync(
         int sampleRate, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        PortAudioRuntime.EnsureStarted();
-        var device = InputDeviceChooser.ChooseInputDevice();
-        if (device == PortAudioBindings.NoDevice) yield break;
-
         var chunks = Channel.CreateUnbounded<float[]>(new UnboundedChannelOptions { SingleReader = true });
         var capture = new MicrophoneCapture(chunks.Writer);
         PortAudioSharp.Stream.Callback callback = capture.CopyInputBuffer; // kept alive below: native code calls it
-        using var stream = new PortAudioSharp.Stream(
-            inParams: PortAudioRuntime.CreateMonoParameters(device, forInput: true), outParams: null,
-            sampleRate: sampleRate, framesPerBuffer: SamplesPerChunk,
-            streamFlags: StreamFlags.ClipOff, callback: callback, userData: null);
+        using var stream = PortAudioRuntime.OpenStreamOnCurrentDevices(() => OpenInputStream(sampleRate, callback));
+        if (stream is null) yield break;
 
         stream.Start();
         try
@@ -38,6 +32,18 @@ public sealed class PortAudioMicrophone : IMicrophone
             stream.Abort();
             GC.KeepAlive(callback);
         }
+    }
+
+    // Null when there is no microphone at all.
+    private static PortAudioSharp.Stream? OpenInputStream(int sampleRate, PortAudioSharp.Stream.Callback callback)
+    {
+        var device = InputDeviceChooser.ChooseInputDevice();
+        if (device == PortAudioBindings.NoDevice) return null;
+
+        return new PortAudioSharp.Stream(
+            inParams: PortAudioRuntime.CreateMonoParameters(device, forInput: true), outParams: null,
+            sampleRate: sampleRate, framesPerBuffer: SamplesPerChunk,
+            streamFlags: StreamFlags.ClipOff, callback: callback, userData: null);
     }
 
     /// <summary>Copies each buffer from PortAudio's callback thread into a channel.</summary>

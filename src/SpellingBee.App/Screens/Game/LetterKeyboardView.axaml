@@ -23,14 +23,21 @@
         </DataTemplate>
       </ItemsControl.ItemTemplate>
     </ItemsControl>
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-      <Button Classes="key" Width="140" Command="{Binding PressEraseCommand}"
+    <!-- Erase and Done are wide, far apart, and labelled, so neither is tapped by mistake. -->
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="48" Margin="0,8,0,0">
+      <Button Classes="key" Width="220" Command="{Binding PressEraseCommand}"
               ToolTip.Tip="Erase" AutomationProperties.Name="Erase">
-        <PathIcon Data="{StaticResource BackspaceIcon}" />
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <PathIcon Data="{StaticResource BackspaceIcon}" />
+          <TextBlock Classes="key-label" Text="Oops" />
+        </StackPanel>
       </Button>
-      <Button Classes="key primary" Width="180" Command="{Binding PressDoneCommand}"
+      <Button Classes="key primary" Width="260" Command="{Binding PressDoneCommand}"
               ToolTip.Tip="Done" AutomationProperties.Name="Done">
-        <PathIcon Data="{StaticResource CheckIcon}" />
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <PathIcon Data="{StaticResource CheckIcon}" />
+          <TextBlock Classes="key-label" Text="Done" />
+        </StackPanel>
       </Button>
     </StackPanel>
   </StackPanel>

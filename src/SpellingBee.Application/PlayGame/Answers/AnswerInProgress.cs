@@ -37,12 +37,19 @@ internal sealed class AnswerInProgress
     /// <summary>True when there's nothing left to wait for: decide right or wrong now.</summary>
     public bool IsReadyToDecide => TimeLeftBeforeDeciding() is { } timeLeft && timeLeft <= TimeSpan.Zero;
 
-    public bool IsFinishedEarly => _wasSubmitted || (EndsBySilence && IsSpelledRight);
+    // Spoken answers end as soon as they are right or wrong: a wrong letter stays on screen, so
+    // the child hears "Good try" at once instead of watching it sit there.
+    public bool IsFinishedEarly => _wasSubmitted || (EndsBySilence && (IsSpelledRight || IsSpelledWrong));
 
     private bool EndsBySilence => _silenceThatEndsAnswer is not null;
 
-    private bool IsSpelledRight =>
-        _letterRules.Matcher.CompareHeardLettersToWord(_word, _letters, _acceptSoundAlikes) == MatchState.Correct;
+    private bool IsSpelledRight => CompareLettersToWord() == MatchState.Correct;
+
+    // The letters can no longer turn into the word without starting over ("S E" for "said").
+    private bool IsSpelledWrong => CompareLettersToWord() == MatchState.Wrong;
+
+    private MatchState CompareLettersToWord() =>
+        _letterRules.Matcher.CompareHeardLettersToWord(_word, _letters, _acceptSoundAlikes);
 
     public void ApplyHeardEvent(HeardEvent heard)
     {
@@ -69,44 +76,54 @@ internal sealed class AnswerInProgress
         }
     }
 
-    // A guess made while the child is still talking often catches a letter half-said ("C F" on the
-    // way to "C A T"), so it is shown only as far as it fits the word. A real mistake still shows
-    // a moment later, from the reading made when the child pauses.
+    // What the screen shows only ever grows: a newer reading is used only when it adds letters to
+    // the ones shown, so letters never flicker or change under the child's eyes. A guess made while
+    // the child is still talking often mishears a letter half-said ("C F" on the way to "C A T"),
+    // so it may only add letters that fit the word; a wrong letter shows (and ends the answer)
+    // only from the reading made when the child pauses.
     private void ReplaceLetters(AnswerHeardSoFar wholeAnswer)
     {
         var letters = ChooseLettersThatFitTheWord(wholeAnswer);
-        if (wholeAnswer.IsChildStillSpeaking)
-        {
-            var fittingPart = KeepPartThatFitsTheWord(letters);
-            if (fittingPart is null) return;
-            letters = fittingPart;
-        }
+        if (wholeAnswer.IsChildStillSpeaking && !DoesFitTheWord(letters)) return;
+        if (!AddsToLettersShown(letters) && !IsWrongReadingAfterPause(wholeAnswer, letters)) return;
         _letters.Clear();
         _letters.AddRange(letters);
     }
 
-    // The letters, or all but the last one, if they spell the word or a start of it; otherwise null.
-    private IReadOnlyList<char>? KeepPartThatFitsTheWord(IReadOnlyList<char> letters)
-    {
-        IReadOnlyList<char>[] candidates = [letters, letters.Take(Math.Max(0, letters.Count - 1)).ToList()];
-        return candidates.FirstOrDefault(candidate => candidate.Count > 0 && DoesFitTheWord(candidate));
-    }
+    // After a pause, a wrong reading that disagrees with the letters shown still ends the answer:
+    // the screen changes once, to what was heard, and "Good try" follows straight away.
+    private bool IsWrongReadingAfterPause(AnswerHeardSoFar wholeAnswer, IReadOnlyList<char> letters) =>
+        !wholeAnswer.IsChildStillSpeaking && letters.Count >= _letters.Count && !DoesFitTheWord(letters);
+
+    private bool AddsToLettersShown(IReadOnlyList<char> letters) =>
+        letters.Count > _letters.Count && letters.Take(_letters.Count).SequenceEqual(_letters);
 
     private bool DoesFitTheWord(IReadOnlyList<char> letters) =>
         _letterRules.Matcher.CompareHeardLettersToWord(_word, letters, _acceptSoundAlikes) is MatchState.Correct or MatchState.OnTrack;
 
-    // Keeps the reading closest to the word (right, then on track), shows a sound-alike letter
-    // as the letter expected there ("C I T" for "cat" reads as "C A T" when sound-alikes count),
-    // and drops talk around the attempt ("S N A P S N A" shows as "S N A P").
+    // Keeps the reading closest to the word (right, then on track, then the most letters right
+    // from the start), shows a sound-alike letter as the letter expected there ("C I T" for "cat"
+    // reads as "C A T" when sound-alikes count), and drops talk around the attempt
+    // ("S N A P S N A" shows as "S N A P").
     private IReadOnlyList<char> ChooseLettersThatFitTheWord(AnswerHeardSoFar wholeAnswer)
     {
         var matcher = _letterRules.Matcher;
         var best = new[] { wholeAnswer.Text }.Concat(wholeAnswer.OtherReadings)
             .Select(reading => _letterRules.Normalizer.ConvertToLetters(reading))
             .OrderByDescending(letters => RankHowWellLettersFit(matcher.CompareHeardLettersToWord(_word, letters, _acceptSoundAlikes)))
+            .ThenByDescending(CountLettersRightFromStart)
             .First();
         var meant = matcher.ReplaceSoundAlikesWithExpectedLetters(_word, best, _acceptSoundAlikes);
         return matcher.KeepLatestAttemptAtWord(_word, meant, _acceptSoundAlikes);
+    }
+
+    // Breaks a tie between two wrong readings: "T H R" for "third" beats "P H R".
+    private int CountLettersRightFromStart(IReadOnlyList<char> letters)
+    {
+        var target = AnswerMatcher.ToUpperCaseLetters(_word);
+        int count = 0;
+        while (count < letters.Count && count < target.Length && letters[count] == target[count]) count++;
+        return count;
     }
 
     private static int RankHowWellLettersFit(MatchState match) => match switch

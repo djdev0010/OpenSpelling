@@ -46,7 +46,7 @@ public sealed class AppServices : IDisposable
         {
             StartApp = new StartAppService(settings, voices, settingsApplier),
             ChooseSpellingList = new ChooseSpellingListService(settings),
-            PlayGame = new PlayGameService(gameServices, settings, keyboard, platform.Storage.HeardAnswers),
+            PlayGame = new PlayGameService(gameServices, settings, listener, platform.Storage.HeardAnswers),
             ChangeSettings = new ChangeSettingsService(settings, settingsApplier, preloader),
             PreviewVoice = new PreviewVoiceService(voices, narrator),
             Ui = new AvaloniaUiDispatcher(),

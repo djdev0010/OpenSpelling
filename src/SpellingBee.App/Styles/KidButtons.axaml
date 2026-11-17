@@ -121,13 +121,14 @@
     <Setter Property="BorderBrush" Value="{StaticResource CurrentBlueBrush}" />
   </Style>
 
-  <!-- On-screen keyboard. -->
+  <!-- On-screen keyboard: big keys with wide gaps so small fingers hit the one they mean, and a
+       squish on press so the child sees the tap landed. -->
   <Style Selector="Button.key">
-    <Setter Property="Width" Value="84" />
-    <Setter Property="Height" Value="76" />
-    <Setter Property="Margin" Value="6" />
-    <Setter Property="CornerRadius" Value="16" />
-    <Setter Property="FontSize" Value="40" />
+    <Setter Property="Width" Value="100" />
+    <Setter Property="Height" Value="96" />
+    <Setter Property="Margin" Value="8" />
+    <Setter Property="CornerRadius" Value="20" />
+    <Setter Property="FontSize" Value="52" />
     <Setter Property="FontWeight" Value="Bold" />
     <Setter Property="Background" Value="{StaticResource CardBrush}" />
     <Setter Property="BorderBrush" Value="{StaticResource EdgeBrush}" />
@@ -136,9 +137,24 @@
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="Cursor" Value="Hand" />
   </Style>
+  <Style Selector="Button.key">
+    <Setter Property="RenderTransform" Value="scale(1)" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.08" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Button.key:pressed">
+    <Setter Property="RenderTransform" Value="scale(0.88)" />
+  </Style>
   <Style Selector="Button.key PathIcon">
-    <Setter Property="Width" Value="40" />
-    <Setter Property="Height" Value="40" />
+    <Setter Property="Width" Value="44" />
+    <Setter Property="Height" Value="44" />
+  </Style>
+  <Style Selector="Button.key TextBlock.key-label">
+    <Setter Property="FontSize" Value="30" />
+    <Setter Property="VerticalAlignment" Value="Center" />
   </Style>
 
   <!-- Grown-up ✓ / ✗ when the microphone mishears. -->

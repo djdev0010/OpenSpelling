@@ -9,4 +9,7 @@ internal enum TurnAnswer
 
     /// <summary>The child tapped the speaker to hear the word again.</summary>
     WordAskedAgain,
+
+    /// <summary>Someone switched between spelling out loud and typing in the middle of the word.</summary>
+    AnswerModeChanged,
 }

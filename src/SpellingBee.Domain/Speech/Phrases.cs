@@ -10,6 +10,8 @@ public static class Phrases
     public const string StillThere = "Are you still there? Tap the big button when you're ready.";
     public const string VoiceSample = "Hi! Let's practice spelling. Please spell: cat.";
 
+    private const string Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
     public static IReadOnlyList<string> Cheers { get; } =
         ["Yay! You got it!", "Nice Job!", "Great job!", "Awesome spelling!", "You did it!", "Super!"];
 
@@ -28,7 +30,8 @@ public static class Phrases
     /// <summary>
     /// Every phrase the game can say for this word list, for pre-generating audio, in the order a
     /// game needs them: the short shared phrases, cheers and letters (needed after the very first
-    /// answer), then each word's prompt and correction in list order, then "Listen and learn".
+    /// answer), then each word's prompt and correction in list order, then "Listen and learn",
+    /// then the rest of the alphabet, said when the child taps a key on the on-screen keyboard.
     /// </summary>
     public static IReadOnlyList<string> ListAllPhrasesFor(IReadOnlyList<string> words)
     {
@@ -41,6 +44,7 @@ public static class Phrases
         }
         phrases.Add(ListenAndLearnIntro);
         phrases.AddRange(words.Select(word => ListenAndLearn(word).LeadIn));
+        phrases.AddRange(Alphabet.Select(letter => letter.ToString()));
         return phrases.Distinct().ToList();
     }
 

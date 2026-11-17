@@ -9,6 +9,9 @@ public sealed class GameSignals
     /// <summary>The child tapped the speaker to hear the word again.</summary>
     public OneShotSignal<bool> WordAskedAgain { get; } = new();
 
+    /// <summary>Someone switched between spelling out loud and typing; listen again the new way.</summary>
+    public OneShotSignal<bool> AnswerModeChanged { get; } = new();
+
     /// <summary>The child tapped "keep going" after the game paused for lack of answers.</summary>
     public OneShotSignal<bool> ChildIsBack { get; } = new();
 }

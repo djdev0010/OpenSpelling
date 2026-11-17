@@ -11,6 +11,12 @@ public sealed class SwitchableSpellingListener(
 {
     public bool IsUsingKeyboard { get; private set; }
 
+    /// <summary>False until the microphone and speech models are ready; then the child can spell out loud.</summary>
+    public bool CanHearVoice { get; private set; }
+
+    /// <summary>The on-screen keyboard, which the screen presses keys on.</summary>
+    public OnScreenKeyboardListener Keyboard => keyboardListener;
+
     public SpellingInputKind InputKind => ActiveListener.InputKind;
 
     private ISpellingListener ActiveListener => IsUsingKeyboard ? keyboardListener : voiceListener;
@@ -19,7 +25,8 @@ public sealed class SwitchableSpellingListener(
     public async Task<ListenerReadiness> PrepareListenerAsync(CancellationToken cancellationToken)
     {
         var readiness = await voiceListener.PrepareListenerAsync(cancellationToken);
-        if (readiness != ListenerReadiness.Ready) IsUsingKeyboard = true;
+        CanHearVoice = readiness == ListenerReadiness.Ready;
+        if (!CanHearVoice) IsUsingKeyboard = true;
         return readiness;
     }
 

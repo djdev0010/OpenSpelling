@@ -14,4 +14,10 @@ public interface IHeardAnswerLog
     /// Must never throw.
     /// </summary>
     void AppendDecidedAnswer(string word, string letters, bool isSpelledRight);
+
+    /// <summary>
+    /// Adds why listening stopped before an answer was decided (for example "word asked again").
+    /// Must never throw.
+    /// </summary>
+    void AppendListeningStopped(string word, string reason);
 }

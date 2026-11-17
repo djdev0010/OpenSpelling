@@ -5,15 +5,27 @@
              x:DataType="game:GameViewModel">
   <Grid RowDefinitions="Auto,*" Margin="24">
 
-    <!-- Top bar: Home on the leading side, one badge per word in the middle, progress on the trailing side. -->
-    <Grid ColumnDefinitions="Auto,*,Auto">
+    <!-- Top bar: Home and the say/type switch on the leading side, one badge per word in the
+         middle, progress on the trailing side. -->
+    <Grid ColumnDefinitions="Auto,Auto,*,Auto">
       <Button Classes="toolbar" Command="{Binding GoHomeCommand}"
               ToolTip.Tip="Home" AutomationProperties.Name="Home">
         <PathIcon Data="{StaticResource HomeIcon}" />
       </Button>
-      <game:WordStripView Grid.Column="1" DataContext="{Binding WordStrip}"
+      <!-- Shows the way to switch to: the keyboard while spelling out loud, the microphone while typing. -->
+      <Panel Grid.Column="1" IsVisible="{Binding CanSwitchAnswerMode}" Margin="12,0,0,0">
+        <Button Classes="toolbar" Command="{Binding SwitchAnswerModeCommand}" IsVisible="{Binding !IsTyping}"
+                ToolTip.Tip="Type it" AutomationProperties.Name="Type it on the keyboard">
+          <PathIcon Data="{StaticResource KeyboardIcon}" />
+        </Button>
+        <Button Classes="toolbar" Command="{Binding SwitchAnswerModeCommand}" IsVisible="{Binding IsTyping}"
+                ToolTip.Tip="Say it" AutomationProperties.Name="Spell it out loud">
+          <PathIcon Data="{StaticResource MicrophoneIcon}" />
+        </Button>
+      </Panel>
+      <game:WordStripView Grid.Column="2" DataContext="{Binding WordStrip}"
                           VerticalAlignment="Center" Margin="16,0" />
-      <StackPanel Grid.Column="2" VerticalAlignment="Center" MinWidth="64">
+      <StackPanel Grid.Column="3" VerticalAlignment="Center" MinWidth="64">
         <TextBlock Classes="status" Text="{Binding ProgressText}" HorizontalAlignment="Right" />
         <TextBlock Classes="status" Text="{Binding RoundText}" FontSize="17" HorizontalAlignment="Right" />
       </StackPanel>

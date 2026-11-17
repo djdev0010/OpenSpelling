@@ -29,6 +29,10 @@ public sealed partial class ChooseWordsViewModel : ObservableObject
 
     public ObservableCollection<SpellingListCardViewModel> SpellingLists { get; } = [];
 
+    /// <summary>Play the words in a new random order every game.</summary>
+    [ObservableProperty]
+    public partial bool ShuffleWords { get; set; }
+
     /// <summary>Shown when the child picks Play (false) or Listen and learn (true).</summary>
     [ObservableProperty]
     public partial string Heading { get; set; } = "";
@@ -49,8 +53,12 @@ public sealed partial class ChooseWordsViewModel : ObservableObject
     [RelayCommand]
     private void GoBack() => Closed?.Invoke();
 
+    // The generated change hook can't be awaited, so the save runs in the background.
+    partial void OnShuffleWordsChanged(bool value) => _ = _chooseSpellingList.ChooseShuffleWordsAsync(value, CancellationToken.None);
+
     private void ShowSpellingLists(SpellingListChoices choices)
     {
+        ShuffleWords = choices.ShuffleWords;
         SpellingLists.Clear();
         foreach (var list in choices.Lists)
             SpellingLists.Add(new SpellingListCardViewModel(list, list.Name == choices.ChosenListName));

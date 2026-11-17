@@ -24,6 +24,8 @@ public sealed class FileHeardAnswerLog : IHeardAnswerLog
     public void AppendDecidedAnswer(string word, string letters, bool isSpelledRight) =>
         AppendLine(word, $"decided={letters}\t{(isSpelledRight ? "right" : "wrong")}");
 
+    public void AppendListeningStopped(string word, string reason) => AppendLine(word, $"stopped={reason}");
+
     private void AppendLine(string word, string entry)
     {
         try

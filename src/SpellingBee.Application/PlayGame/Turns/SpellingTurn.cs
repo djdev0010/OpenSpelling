@@ -20,12 +20,14 @@ public sealed class SpellingTurn
     private readonly AnswerCollector _collector;
     private readonly AnswerMatcher _matcher;
     private readonly AnswerDisplay _answerDisplay;
+    private readonly IHeardAnswerLog _heardLog;
 
     public SpellingTurn(GameServices services, GameStateTracker state, GameSignals signals, IHeardAnswerLog heardLog)
     {
         _services = services;
         _state = state;
         _signals = signals;
+        _heardLog = heardLog;
         var letterRules = LetterRules.FromTuning(services.Tuning.Letters);
         _matcher = letterRules.Matcher;
         _collector = new AnswerCollector(services.Time, services.Tuning.Timings, letterRules, heardLog);
@@ -56,14 +58,17 @@ public sealed class SpellingTurn
     private async Task<bool?> PromptAndListenAsync(string word, bool acceptSoundAlikes, CancellationToken cancellationToken)
     {
         _state.ShowWord(word, GamePhase.Prompting, revealed: false);
+        bool shouldSayPrompt = true;
         while (true)
         {
-            await _services.Narrator.SpeakAsync(Phrases.SpellPrompt(word), cancellationToken);
+            if (shouldSayPrompt) await _services.Narrator.SpeakAsync(Phrases.SpellPrompt(word), cancellationToken);
             var answer = await ListenForAnswerAsync(word, acceptSoundAlikes, cancellationToken);
             if (answer == TurnAnswer.NoAnswer) return null;
-            if (answer != TurnAnswer.WordAskedAgain) return answer == TurnAnswer.SpelledRight;
+            if (answer is TurnAnswer.SpelledRight or TurnAnswer.SpelledWrong) return answer == TurnAnswer.SpelledRight;
 
-            _state.ShowPhase(GamePhase.Prompting);
+            // Hearing the word again repeats the prompt; switching how to answer keeps the same word going.
+            shouldSayPrompt = answer == TurnAnswer.WordAskedAgain;
+            if (shouldSayPrompt) _state.ShowPhase(GamePhase.Prompting);
         }
     }
 
@@ -73,12 +78,13 @@ public sealed class SpellingTurn
         _state.ShowPhase(GamePhase.GettingReadyToListen);
         _signals.GrownUpVerdict.Clear();
         _signals.WordAskedAgain.Clear();
+        _signals.AnswerModeChanged.Clear();
         using var preparingSpeechLater = _services.Narrator.PauseSpeechPreparation();
         return await ListenOrTakeTapAsync(word, acceptSoundAlikes, cancellationToken);
     }
 
-    // Listening stops when the child answers, a grown-up gives a verdict, or the child asks
-    // to hear the word again (the microphone must not hear the app say it).
+    // Listening stops when the child answers, a grown-up gives a verdict, the child asks to hear
+    // the word again (the microphone must not hear the app say it), or the answer mode switches.
     private async Task<TurnAnswer> ListenOrTakeTapAsync(string word, bool acceptSoundAlikes, CancellationToken cancellationToken)
     {
         using var stop = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -86,20 +92,29 @@ public sealed class SpellingTurn
             _services.Listener, word, acceptSoundAlikes, _answerDisplay, stop.Token);
         var grownUpVerdict = _signals.GrownUpVerdict.WaitForValueAsync(stop.Token);
         var wordAskedAgain = _signals.WordAskedAgain.WaitForValueAsync(stop.Token);
+        var answerModeChanged = _signals.AnswerModeChanged.WaitForValueAsync(stop.Token);
 
-        var first = await Task.WhenAny(listening, grownUpVerdict, wordAskedAgain);
+        var first = await Task.WhenAny(listening, grownUpVerdict, wordAskedAgain, answerModeChanged);
         await stop.CancelAsync();
-        await IgnoreCancellationAsync(listening);
-        await IgnoreCancellationAsync(grownUpVerdict);
-        await IgnoreCancellationAsync(wordAskedAgain);
+        foreach (var task in new Task[] { listening, grownUpVerdict, wordAskedAgain, answerModeChanged })
+            await IgnoreCancellationAsync(task);
+        if (first != listening) LogWhyListeningStopped(word, first == wordAskedAgain, first == answerModeChanged);
+        else if (cancellationToken.IsCancellationRequested) _heardLog.AppendListeningStopped(word, "game stopped");
         cancellationToken.ThrowIfCancellationRequested();
 
         if (first == wordAskedAgain) return TurnAnswer.WordAskedAgain;
+        if (first == answerModeChanged) return TurnAnswer.AnswerModeChanged;
         if (first == grownUpVerdict) return ToTurnAnswer(await grownUpVerdict);
 
         var answer = await listening;
         if (answer.Outcome == AnswerOutcome.NoAnswer) return TurnAnswer.NoAnswer;
         return ToTurnAnswer(_matcher.CompareHeardLettersToWord(word, answer.Letters, acceptSoundAlikes) == MatchState.Correct);
+    }
+
+    private void LogWhyListeningStopped(string word, bool wasWordAskedAgain, bool wasAnswerModeChanged)
+    {
+        var reason = wasWordAskedAgain ? "word asked again" : wasAnswerModeChanged ? "switched typing/talking" : "grown-up verdict";
+        _heardLog.AppendListeningStopped(word, reason);
     }
 
     private static TurnAnswer ToTurnAnswer(bool spelledRight) =>

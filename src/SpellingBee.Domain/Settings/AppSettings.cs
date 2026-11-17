@@ -5,6 +5,7 @@ namespace SpellingBee.Domain.Settings;
 /// <summary>Everything the grown-up can change. Saved on this device by an <c>ISettingsStorage</c>.</summary>
 /// <param name="ActiveListName">The saved list the child plays.</param>
 /// <param name="KeyboardLayout">Letter order on the on-screen keyboard. Older settings files without it get A–Z.</param>
+/// <param name="ShuffleWords">Play the words in a new random order every game, instead of list order.</param>
 public sealed record AppSettings(
     IReadOnlyList<SpellingList> SpellingLists,
     string ActiveListName,
@@ -12,7 +13,8 @@ public sealed record AppSettings(
     bool ShowGrownUpOverrideButtons,
     bool AcceptSoundAlikeLetters,
     bool UseOnScreenKeyboard,
-    KeyboardLayout KeyboardLayout = KeyboardLayout.Alphabetical)
+    KeyboardLayout KeyboardLayout = KeyboardLayout.Alphabetical,
+    bool ShuffleWords = false)
 {
     public const string FirstListName = "My words";
 

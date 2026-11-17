@@ -25,15 +25,10 @@ public sealed class PortAudioPlayer : IAudioPlayer
 
     private static async Task PlayOnOutputDeviceAsync(AudioClip clip, CancellationToken cancellationToken)
     {
-        PortAudioRuntime.EnsureStarted();
         var playback = new ClipPlayback(clip.Samples);
         PortAudioSharp.Stream.Callback callback = playback.FillOutputBuffer; // kept alive below: native code calls it
-        var output = PortAudioRuntime.CreateMonoParameters(PortAudioBindings.DefaultOutputDevice, forInput: false);
-
-        using var stream = new PortAudioSharp.Stream(
-            inParams: null, outParams: output, sampleRate: clip.SampleRate,
-            framesPerBuffer: PortAudioBindings.FramesPerBufferUnspecified,
-            streamFlags: StreamFlags.ClipOff, callback: callback, userData: null);
+        var (stream, output) = PortAudioRuntime.OpenStreamOnCurrentDevices(() => OpenOutputStream(clip.SampleRate, callback));
+        using var openStream = stream;
 
         stream.Start();
         try
@@ -46,6 +41,17 @@ public sealed class PortAudioPlayer : IAudioPlayer
             stream.Abort();
             GC.KeepAlive(callback);
         }
+    }
+
+    private static (PortAudioSharp.Stream Stream, StreamParameters Output) OpenOutputStream(
+        int sampleRate, PortAudioSharp.Stream.Callback callback)
+    {
+        var output = PortAudioRuntime.CreateMonoParameters(PortAudioBindings.DefaultOutputDevice, forInput: false);
+        var stream = new PortAudioSharp.Stream(
+            inParams: null, outParams: output, sampleRate: sampleRate,
+            framesPerBuffer: PortAudioBindings.FramesPerBufferUnspecified,
+            streamFlags: StreamFlags.ClipOff, callback: callback, userData: null);
+        return (stream, output);
     }
 
     private static TimeSpan OutputLatency(StreamParameters output) =>
