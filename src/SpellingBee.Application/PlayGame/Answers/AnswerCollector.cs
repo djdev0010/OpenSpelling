@@ -34,15 +34,22 @@ public sealed class AnswerCollector(
                 nextEvent = null;
                 if (reader.Current is ListeningStarted) display.ShowListeningStarted();
                 answer.ApplyHeardEvent(reader.Current);
-                if (reader.Current is AnswerHeardSoFar { IsChildStillSpeaking: false } spoken) heardLog.AppendHeardAnswer(word, spoken.Text);
+                if (reader.Current is AnswerHeardSoFar { IsChildStillSpeaking: false } spoken) heardLog.AppendHeardAnswer(word, string.Join(" | ", [spoken.Text, .. spoken.OtherReadings]));
                 display.ShowLetters(answer.Letters);
             }
-            return answer.ToResult();
+            return LogDecidedAnswer(word, acceptSoundAlikes, answer.ToResult());
         }
         finally
         {
             await StopListenerAsync(stopListening, nextEvent);
         }
+    }
+
+    private AnswerResult LogDecidedAnswer(string word, bool acceptSoundAlikes, AnswerResult result)
+    {
+        var match = letterRules.Matcher.CompareHeardLettersToWord(word, result.Letters, acceptSoundAlikes);
+        heardLog.AppendDecidedAnswer(word, new string(result.Letters.ToArray()), match == MatchState.Correct);
+        return result;
     }
 
     private AnswerRules CreateRules(SpellingInputKind inputKind, bool acceptSoundAlikes)

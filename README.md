@@ -206,3 +206,9 @@ src/SpellingBee.App                       shared Avalonia screens + composition 
 src/SpellingBee.App.Desktop               Mac app: starts the shared app with the Mac adapters
 src/SpellingBee.App.iOS                   iPad app: starts the shared app with the iPad adapters
 ```
+
+## License
+
+Spell on Words is free to use, change and share for any noncommercial purpose under the
+[PolyForm Noncommercial License 1.0.0](LICENSE.md). Commercial use is reserved for the
+copyright holder. Contributions are welcome under the terms in [CONTRIBUTING.md](CONTRIBUTING.md).

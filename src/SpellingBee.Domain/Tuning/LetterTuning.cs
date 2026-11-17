@@ -35,7 +35,7 @@ public sealed record LetterTuning(
             ["OK"] = ["okay", "ok"],
             ["L"] = ["el", "ell", "elle", "al"],
             ["M"] = ["em", "im"],
-            ["N"] = ["en", "in", "an"],
+            ["N"] = ["en", "in", "an", "and"],
             ["O"] = ["oh", "owe", "ow", "ooh"],
             ["P"] = ["pee", "pea", "pe", "pi"],
             ["Q"] = ["cue", "queue", "kew", "kyu", "cute"],
@@ -49,6 +49,8 @@ public sealed record LetterTuning(
             ["Y"] = ["why", "wye", "wai", "wi"],
             ["Z"] = ["zee", "zed", "zi", "ze"],
         },
+        // A and I: the recognizer hears a child's "A" as "I" (C I T for cat), so they count as the
+        // same when sound-alikes are on. Turn sound-alikes off to be strict about vowels.
         SoundAlikeLetterGroups: ["BCDEGPTVZ", "MN", "FS", "IY", "AJK", "QU", "AI"],
         WordsToIgnore: ["uh", "uhh", "uhm", "um", "umm", "hmm", "mm", "mmm", "er", "erm", "ah", "ahh"]);
 }

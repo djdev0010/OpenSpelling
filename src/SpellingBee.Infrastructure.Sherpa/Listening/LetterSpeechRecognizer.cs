@@ -29,13 +29,35 @@ internal sealed class LetterSpeechRecognizer : IDisposable
         _recognizer = new OfflineRecognizer(config);
     }
 
-    public string ConvertSpeechToText(float[] speech)
+    /// <summary>
+    /// Two readings of the same speech, with the "Q, X" lead-in and without. Each one gets some
+    /// letters right that the other misses (a lone first letter, a child's "A"), so the game keeps
+    /// whichever fits the word. Empty readings are left out.
+    /// </summary>
+    public IReadOnlyList<string> ConvertSpeechToReadings(float[] speech)
+    {
+        if (speech.Length == 0) return [];
+        string[] readings = [RecognizeWithLeadIn(speech), RecognizeAlone(speech)];
+        return readings.Where(reading => reading.Length > 0).Distinct().ToList();
+    }
+
+    public void Dispose() => _recognizer.Dispose();
+
+    private string RecognizeWithLeadIn(float[] speech)
+    {
+        using var stream = _recognizer.CreateStream();
+        stream.AcceptWaveform(SampleRate, [.. Padding, .. LetterLeadIn.AddLeadIn(speech), .. Padding]);
+        _recognizer.Decode(stream);
+        var result = stream.Result;
+        double childStartsAt = (double)Padding.Length / SampleRate + LetterLeadIn.ChildSpeechStartSeconds;
+        return LetterLeadIn.KeepTextAfterLeadIn(result.Tokens, result.Timestamps, childStartsAt);
+    }
+
+    private string RecognizeAlone(float[] speech)
     {
         using var stream = _recognizer.CreateStream();
         stream.AcceptWaveform(SampleRate, [.. Padding, .. speech, .. Padding]);
         _recognizer.Decode(stream);
         return stream.Result.Text.Trim();
     }
-
-    public void Dispose() => _recognizer.Dispose();
 }

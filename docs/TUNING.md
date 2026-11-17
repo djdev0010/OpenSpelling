@@ -42,7 +42,7 @@ Match what you see in the log to a fix. All the files are in `src/SpellingBee.Do
 | A filler sound turned into a letter (`uh`) | `LetterTuning.cs` | Add it to `WordsToIgnore`. |
 | The first letter is missing (`I R L` for girl) | `ListenerTuning.cs` | Raise `AudioKeptBeforeSpeech`. |
 | The last letter is missing | `ListenerTuning.cs` | Raise `AudioKeptAfterSpeech`. |
-| Nothing is heard from a quiet child | `ListenerTuning.cs` | Lower `SpeechDetectionThreshold`, for example to `0.35`. |
+| Nothing is heard from a quiet child | `ListenerTuning.cs` | Lower `SpeechDetectionThreshold` (default `0.1`), for example to `0.05`. |
 | Background noise shows up as letters | `ListenerTuning.cs` | Raise `SpeechDetectionThreshold` or `ShortestSpeech`. |
 | The answer ends before the child is done | `GameTimings.cs` | Raise `SilenceThatEndsSpokenAnswer`. |
 | The prompt repeats too soon | `GameTimings.cs` | Raise `WaitBeforeRepeatingPrompt`. |

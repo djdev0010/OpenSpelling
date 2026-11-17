@@ -41,6 +41,9 @@ public sealed class Narrator(SpeechClipCache clipCache, IAudioPlayer player, Spe
         await PlayClipsInOrderAsync(clips, cancellationToken);
     }
 
+    /// <summary>Pauses making clips in the background until disposed (see <see cref="SpeechClipCache.PausePreloading"/>).</summary>
+    public PreloadPause PauseSpeechPreparation() => clipCache.PausePreloading();
+
     public Task PlaySoundEffectAsync(SoundEffect effect, CancellationToken cancellationToken)
     {
         if (!_soundEffects.TryGetValue(effect, out var clip))

@@ -19,12 +19,17 @@ public sealed class FileHeardAnswerLog : IHeardAnswerLog
         _time = time;
     }
 
-    public void AppendHeardAnswer(string word, string heardText)
+    public void AppendHeardAnswer(string word, string heardText) => AppendLine(word, $"heard=\"{heardText}\"");
+
+    public void AppendDecidedAnswer(string word, string letters, bool isSpelledRight) =>
+        AppendLine(word, $"decided={letters}\t{(isSpelledRight ? "right" : "wrong")}");
+
+    private void AppendLine(string word, string entry)
     {
         try
         {
             StartOverIfLogIsTooLarge();
-            var line = $"{_time.GetLocalNow():yyyy-MM-dd HH:mm:ss}\tword={word}\theard=\"{heardText}\"{Environment.NewLine}";
+            var line = $"{_time.GetLocalNow():yyyy-MM-dd HH:mm:ss}\tword={word}\t{entry}{Environment.NewLine}";
             File.AppendAllText(_logFile, line);
         }
         catch (IOException)

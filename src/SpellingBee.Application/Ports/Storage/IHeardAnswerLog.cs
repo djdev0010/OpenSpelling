@@ -8,4 +8,10 @@ public interface IHeardAnswerLog
 {
     /// <summary>Adds one entry. Must never throw: the log is a debugging aid, not part of the game.</summary>
     void AppendHeardAnswer(string word, string heardText);
+
+    /// <summary>
+    /// Adds the letters the game decided on when the answer ended, and whether they spell the word.
+    /// Must never throw.
+    /// </summary>
+    void AppendDecidedAnswer(string word, string letters, bool isSpelledRight);
 }

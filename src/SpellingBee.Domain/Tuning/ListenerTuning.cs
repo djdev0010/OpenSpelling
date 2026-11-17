@@ -20,11 +20,13 @@ public sealed record ListenerTuning(
     TimeSpan TimeBetweenGuessesWhileSpeaking)
 {
     public static ListenerTuning Default { get; } = new(
-        SpeechDetectionThreshold: 0.5,
+        // 0.5 missed a quiet child's softer letters (heard "G R" for girl). 0.25 still missed short,
+        // soft letters (the A in "J… A… M"), so they appeared only with the next letter.
+        SpeechDetectionThreshold: 0.1,
         PauseThatSplitsSpeech: TimeSpan.FromSeconds(0.35),
         ShortestSpeech: TimeSpan.FromSeconds(0.08),
         LongestSpeech: TimeSpan.FromSeconds(8),
         AudioKeptBeforeSpeech: TimeSpan.FromSeconds(0.4),
         AudioKeptAfterSpeech: TimeSpan.FromSeconds(0.2),
-        TimeBetweenGuessesWhileSpeaking: TimeSpan.FromSeconds(0.5));
+        TimeBetweenGuessesWhileSpeaking: TimeSpan.FromSeconds(0.25));
 }

@@ -39,3 +39,9 @@ xcuserdata/
 
 # Bundle ID chosen by scripts/install-ipad.sh for this Mac's signing profile
 .ipad-bundle-id
+
+# Audio recordings: voice samples made while tuning, and the child's answers (Debug builds save
+# them in the app's data folder; keep any copies here out of git). Not "*.wav": the listener's
+# embedded letter-lead-in.wav is committed.
+letter-pause-samples/
+answer-recordings/

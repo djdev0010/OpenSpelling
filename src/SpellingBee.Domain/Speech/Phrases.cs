@@ -16,10 +16,12 @@ public static class Phrases
     // One phrase, not two clips: Kokoro adds a stray syllable before a short word said on its own.
     public static string SpellPrompt(string word) => $"Please spell: {word}.";
 
+    // The short break after the word ("Cat — is spelled") makes the voice say the word fully
+    // instead of rushing it into "is" ("Said is" came out as "Set is"). "…" works too but pauses too long.
     public static SpelledWordPhrase GoodTryWithCorrectSpelling(string word) =>
-        new($"Good try. {Capitalize(word)} is spelled", word);
+        new($"Good try. {Capitalize(word)} — is spelled", word);
 
-    public static SpelledWordPhrase ListenAndLearn(string word) => new($"{Capitalize(word)} is spelled", word);
+    public static SpelledWordPhrase ListenAndLearn(string word) => new($"{Capitalize(word)} — is spelled", word);
 
     public static string PickCheer(Random random) => Cheers[random.Next(Cheers.Count)];
 

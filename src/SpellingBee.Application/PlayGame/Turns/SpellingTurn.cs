@@ -73,6 +73,7 @@ public sealed class SpellingTurn
         _state.ShowPhase(GamePhase.GettingReadyToListen);
         _signals.GrownUpVerdict.Clear();
         _signals.WordAskedAgain.Clear();
+        using var preparingSpeechLater = _services.Narrator.PauseSpeechPreparation();
         return await ListenOrTakeTapAsync(word, acceptSoundAlikes, cancellationToken);
     }
 

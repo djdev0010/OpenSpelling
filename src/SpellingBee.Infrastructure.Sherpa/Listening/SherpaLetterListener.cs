@@ -16,7 +16,8 @@ public sealed class SherpaLetterListener(
     SpeechModelFiles modelFiles,
     IMicrophone microphone,
     IMicrophonePermission permission,
-    ListenerTuning tuning) : ISpellingListener, IDisposable
+    ListenerTuning tuning,
+    AnswerAudioRecorder? answerRecorder = null) : ISpellingListener, IDisposable
 {
     private LetterSpeechRecognizer? _recognizer;
 
@@ -37,9 +38,24 @@ public sealed class SherpaLetterListener(
     public async IAsyncEnumerable<HeardEvent> ListenForLettersAsync(
         ListenRequest request, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
+        var recording = new AnswerRecording(tuning);
+        try
+        {
+            await foreach (var heard in HearLettersAsync(recording, cancellationToken)) yield return heard;
+        }
+        finally
+        {
+            answerRecorder?.SaveAnswerAudio(request.Word, recording.CutAnswerSoFar());
+        }
+    }
+
+    public void Dispose() => _recognizer?.Dispose();
+
+    private async IAsyncEnumerable<HeardEvent> HearLettersAsync(
+        AnswerRecording recording, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
         var recognizer = _recognizer ?? throw new InvalidOperationException("Call PrepareListenerAsync first.");
         using var segmenter = new SpeechSegmenter(modelFiles, tuning);
-        var recording = new AnswerRecording(tuning);
         var pacer = new GuessPacer(tuning);
         bool wasSpeaking = false;
         bool hasHeardFirstSamples = false;
@@ -64,7 +80,8 @@ public sealed class SherpaLetterListener(
             if (finishedSpeech.Count > 0)
             {
                 foreach (var stretch in finishedSpeech) recording.MarkStretchOfSpeech(stretch);
-                yield return new AnswerHeardSoFar(await RecognizeAsync(recognizer, recording.CutSpokenAnswer(), cancellationToken));
+                var readings = await RecognizeAsync(recognizer, recording.CutSpokenAnswer(), cancellationToken);
+                yield return ToAnswerHeardSoFar(readings, isChildStillSpeaking: false);
             }
             else if (isSpeaking && pacer.IsTimeToGuess(recording.SampleCount))
             {
@@ -73,18 +90,20 @@ public sealed class SherpaLetterListener(
         }
     }
 
-    public void Dispose() => _recognizer?.Dispose();
-
     // Shows letters as they are said, instead of only after the child stops talking.
     private static async Task<AnswerHeardSoFar> GuessWhileSpeakingAsync(
         LetterSpeechRecognizer recognizer, AnswerRecording recording, GuessPacer pacer, CancellationToken cancellationToken)
     {
         var startedAt = Stopwatch.GetTimestamp();
-        var text = await RecognizeAsync(recognizer, recording.CutAnswerSoFar(), cancellationToken);
+        var readings = await RecognizeAsync(recognizer, recording.CutAnswerSoFar(), cancellationToken);
         pacer.WaitAfterGuess(recording.SampleCount, Stopwatch.GetElapsedTime(startedAt));
-        return new AnswerHeardSoFar(text, IsChildStillSpeaking: true);
+        return ToAnswerHeardSoFar(readings, isChildStillSpeaking: true);
     }
 
-    private static Task<string> RecognizeAsync(LetterSpeechRecognizer recognizer, float[] speech, CancellationToken cancellationToken) =>
-        Task.Run(() => recognizer.ConvertSpeechToText(speech), cancellationToken);
+    private static Task<IReadOnlyList<string>> RecognizeAsync(
+        LetterSpeechRecognizer recognizer, float[] speech, CancellationToken cancellationToken) =>
+        Task.Run(() => recognizer.ConvertSpeechToReadings(speech), cancellationToken);
+
+    private static AnswerHeardSoFar ToAnswerHeardSoFar(IReadOnlyList<string> readings, bool isChildStillSpeaking) =>
+        new(readings.FirstOrDefault() ?? "", isChildStillSpeaking) { OtherReadings = readings.Skip(1).ToList() };
 }

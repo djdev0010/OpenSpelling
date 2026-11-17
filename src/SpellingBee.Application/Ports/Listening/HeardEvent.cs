@@ -29,7 +29,14 @@ public sealed record TextHeard(string Text) : HeardEvent;
 /// True for a quick guess made while the child is still talking, so letters show up as they are
 /// said. The last letter may be cut off; the next guess corrects it.
 /// </param>
-public sealed record AnswerHeardSoFar(string Text, bool IsChildStillSpeaking = false) : HeardEvent;
+public sealed record AnswerHeardSoFar(string Text, bool IsChildStillSpeaking = false) : HeardEvent
+{
+    /// <summary>
+    /// Other ways the same speech could be read. The game keeps whichever reading fits the word
+    /// best, since the listener can't know which word the child is spelling.
+    /// </summary>
+    public IReadOnlyList<string> OtherReadings { get; init; } = [];
+}
 
 /// <summary>The child pressed the on-screen erase key.</summary>
 public sealed record LetterErased : HeardEvent;

@@ -42,6 +42,16 @@ public sealed class SpeechClipCache(ISpeechVoice voice, ISpeechClipStore store)
         }
     }
 
+    /// <summary>
+    /// Holds back preloading until the returned pause is disposed, e.g. while the child answers:
+    /// making clips uses the same processor the recognizer needs to show letters quickly.
+    /// </summary>
+    public PreloadPause PausePreloading()
+    {
+        MarkClipNeededNow();
+        return new PreloadPause(MarkClipNoLongerNeededNow);
+    }
+
     /// <summary>Makes a clip ahead of time, but only while the game isn't waiting for one.</summary>
     public async Task PreloadClipAsync(SpeechRequest request, CancellationToken cancellationToken)
     {

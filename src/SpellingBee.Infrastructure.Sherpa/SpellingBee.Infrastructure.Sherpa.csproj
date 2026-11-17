@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <!-- "Q, X," spoken by Kokoro (af_heart), 16 kHz: see Listening/LetterLeadIn.cs. -->
+    <EmbeddedResource Include="Listening/Assets/letter-lead-in.wav" LogicalName="letter-lead-in.wav" />
     <PackageReference Include="org.k2fsa.sherpa.onnx" />
     <ProjectReference Include="../SpellingBee.Application/SpellingBee.Application.csproj" />
   </ItemGroup>

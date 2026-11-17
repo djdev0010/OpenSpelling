@@ -23,11 +23,22 @@ public static class MacPlatformAdapters
         var kokoro = new KokoroVoice(models);
         var microphone = new PortAudioMicrophone();
         var listener = new SherpaLetterListener(
-            models, microphone, new MacMicrophonePermission(microphone), AppTuning.Default.Listening);
+            models, microphone, new MacMicrophonePermission(microphone), AppTuning.Default.Listening,
+            CreateAnswerRecorder(dataFolder));
         var storage = new StoragePorts(
             new JsonFileSettingsStorage(dataFolder),
             new WavFileClipStore(Path.Combine(dataFolder, "speech-cache")),
             new FileHeardAnswerLog(dataFolder, TimeProvider.System));
         return new PlatformAdapters([kokoro, new MacSystemVoice()], new PortAudioPlayer(), listener, storage, [kokoro, listener]);
+    }
+
+    // Debug builds keep each spoken answer, to tune recognition against a real child's voice.
+    private static AnswerAudioRecorder? CreateAnswerRecorder(string dataFolder)
+    {
+#if DEBUG
+        return new AnswerAudioRecorder(Path.Combine(dataFolder, "answer-recordings"));
+#else
+        return null;
+#endif
     }
 }
