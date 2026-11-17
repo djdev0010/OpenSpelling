@@ -20,4 +20,10 @@ public interface IHeardAnswerLog
     /// Must never throw.
     /// </summary>
     void AppendListeningStopped(string word, string reason);
+
+    /// <summary>
+    /// Adds when each set of letters appeared on screen, in seconds after listening started
+    /// (for example "C@0.9 CA@1.8 CAT@4.1"). Must never throw.
+    /// </summary>
+    void AppendShownLetters(string word, string timeline);
 }

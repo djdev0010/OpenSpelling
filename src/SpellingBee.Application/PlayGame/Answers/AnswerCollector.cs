@@ -23,6 +23,7 @@ public sealed class AnswerCollector(
         await using var reader = events.GetAsyncEnumerator(stopListening.Token);
 
         Task<bool>? nextEvent = null;
+        var shownLetters = new ShownLettersTimeline(time);
         try
         {
             while (!answer.IsReadyToDecide)
@@ -32,17 +33,29 @@ public sealed class AnswerCollector(
                 if (!await nextEvent) break;
 
                 nextEvent = null;
-                if (reader.Current is ListeningStarted) display.ShowListeningStarted();
+                if (reader.Current is ListeningStarted)
+                {
+                    display.ShowListeningStarted();
+                    shownLetters.StartTiming();
+                }
                 answer.ApplyHeardEvent(reader.Current);
                 if (reader.Current is AnswerHeardSoFar { IsChildStillSpeaking: false } spoken) heardLog.AppendHeardAnswer(word, string.Join(" | ", [spoken.Text, .. spoken.OtherReadings]));
-                display.ShowLetters(answer.Letters);
+                ShowLetters(answer, display, shownLetters);
             }
+            if (answer.AcceptHeldWrongLetters()) ShowLetters(answer, display, shownLetters);
             return LogDecidedAnswer(word, acceptSoundAlikes, answer.ToResult());
         }
         finally
         {
+            if (shownLetters.HasEntries) heardLog.AppendShownLetters(word, shownLetters.Describe());
             await StopListenerAsync(stopListening, nextEvent);
         }
+    }
+
+    private static void ShowLetters(AnswerInProgress answer, AnswerDisplay display, ShownLettersTimeline shownLetters)
+    {
+        display.ShowLetters(answer.Letters);
+        shownLetters.NoteLetters(answer.Letters);
     }
 
     private AnswerResult LogDecidedAnswer(string word, bool acceptSoundAlikes, AnswerResult result)
@@ -56,7 +69,7 @@ public sealed class AnswerCollector(
     {
         // On the keyboard only the done key ends the answer, so a slow typist is never cut off.
         TimeSpan? silence = inputKind == SpellingInputKind.OnScreenKeyboard ? null : timings.SilenceThatEndsSpokenAnswer;
-        return new AnswerRules(letterRules, acceptSoundAlikes, silence, timings.WaitBeforeRepeatingPrompt);
+        return new AnswerRules(letterRules, acceptSoundAlikes, silence, timings.WaitBeforeRepeatingPrompt, timings.WaitBeforeWrongLetterCounts);
     }
 
     /// <summary>True when the event arrived; false when the time ran out first. No limit waits for the event.</summary>

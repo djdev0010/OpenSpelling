@@ -26,6 +26,8 @@ public sealed class FileHeardAnswerLog : IHeardAnswerLog
 
     public void AppendListeningStopped(string word, string reason) => AppendLine(word, $"stopped={reason}");
 
+    public void AppendShownLetters(string word, string timeline) => AppendLine(word, $"shown={timeline}");
+
     private void AppendLine(string word, string entry)
     {
         try

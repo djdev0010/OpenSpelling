@@ -16,10 +16,13 @@ internal sealed class AnswerInProgress
     private readonly TimeProvider _time;
     private readonly TimeSpan? _silenceThatEndsAnswer;
     private readonly TimeSpan _waitBeforeGivingUp;
+    private readonly TimeSpan _waitBeforeWrongLetterCounts;
     private readonly List<char> _letters = [];
     private DateTimeOffset _lastActivityAt;
     private bool _isChildSpeaking;
     private bool _wasSubmitted;
+    private IReadOnlyList<char>? _heldWrongLetters;
+    private DateTimeOffset _heldSince;
 
     public AnswerInProgress(string word, AnswerRules rules, TimeProvider time)
     {
@@ -28,6 +31,7 @@ internal sealed class AnswerInProgress
         _acceptSoundAlikes = rules.AcceptSoundAlikeLetters;
         _silenceThatEndsAnswer = rules.SilenceThatEndsAnswer;
         _waitBeforeGivingUp = rules.WaitBeforeGivingUp;
+        _waitBeforeWrongLetterCounts = rules.WaitBeforeWrongLetterCounts;
         _time = time;
         _lastActivityAt = time.GetUtcNow();
     }
@@ -51,9 +55,17 @@ internal sealed class AnswerInProgress
     private MatchState CompareLettersToWord() =>
         _letterRules.Matcher.CompareHeardLettersToWord(_word, _letters, _acceptSoundAlikes);
 
+    // Only the child's progress keeps the answer open: speech starting, or the letters changing.
+    // Readings that change nothing (grown-ups talking nearby) don't, so the answer still ends.
     public void ApplyHeardEvent(HeardEvent heard)
     {
-        _lastActivityAt = _time.GetUtcNow();
+        var lettersBefore = new string(_letters.ToArray());
+        ApplyToAnswer(heard);
+        if (heard is SpeechStarted || lettersBefore != new string(_letters.ToArray())) _lastActivityAt = _time.GetUtcNow();
+    }
+
+    private void ApplyToAnswer(HeardEvent heard)
+    {
         switch (heard)
         {
             case SpeechStarted:
@@ -77,23 +89,31 @@ internal sealed class AnswerInProgress
     }
 
     // What the screen shows only ever grows: a newer reading is used only when it adds letters to
-    // the ones shown, so letters never flicker or change under the child's eyes. A guess made while
-    // the child is still talking often mishears a letter half-said ("C F" on the way to "C A T"),
-    // so it may only add letters that fit the word; a wrong letter shows (and ends the answer)
-    // only from the reading made when the child pauses.
+    // the ones shown, so letters never flicker or change under the child's eyes. A wrong letter is
+    // held back briefly, because a letter half-said is often misheard ("C F" on the way to "C A T",
+    // "G I R O" on the way to "G I R L"): if letters that fit come next, it is dropped; if not, it
+    // shows and ends the answer. The wait never starts over, so talk in the room can't keep a wrong
+    // answer open ("T I R N" for "turn"). Showing a wrong letter after two matching guesses was
+    // tried: it turned misheard letters into wrong answers ("Q" for "her").
     private void ReplaceLetters(AnswerHeardSoFar wholeAnswer)
     {
         var letters = ChooseLettersThatFitTheWord(wholeAnswer);
-        if (wholeAnswer.IsChildStillSpeaking && !DoesFitTheWord(letters)) return;
-        if (!AddsToLettersShown(letters) && !IsWrongReadingAfterPause(wholeAnswer, letters)) return;
+        if (!AddsToLettersShown(letters)) return;
+        if (!DoesFitTheWord(letters))
+        {
+            HoldWrongLetters(letters);
+            return;
+        }
+        _heldWrongLetters = null;
         _letters.Clear();
         _letters.AddRange(letters);
     }
 
-    // After a pause, a wrong reading that disagrees with the letters shown still ends the answer:
-    // the screen changes once, to what was heard, and "Good try" follows straight away.
-    private bool IsWrongReadingAfterPause(AnswerHeardSoFar wholeAnswer, IReadOnlyList<char> letters) =>
-        !wholeAnswer.IsChildStillSpeaking && letters.Count >= _letters.Count && !DoesFitTheWord(letters);
+    private void HoldWrongLetters(IReadOnlyList<char> letters)
+    {
+        if (_heldWrongLetters is null) _heldSince = _time.GetUtcNow();
+        _heldWrongLetters = letters;
+    }
 
     private bool AddsToLettersShown(IReadOnlyList<char> letters) =>
         letters.Count > _letters.Count && letters.Take(_letters.Count).SequenceEqual(_letters);
@@ -109,12 +129,21 @@ internal sealed class AnswerInProgress
     {
         var matcher = _letterRules.Matcher;
         var best = new[] { wholeAnswer.Text }.Concat(wholeAnswer.OtherReadings)
-            .Select(reading => _letterRules.Normalizer.ConvertToLetters(reading))
+            .Select(ConvertSpellingToLetters)
             .OrderByDescending(letters => RankHowWellLettersFit(matcher.CompareHeardLettersToWord(_word, letters, _acceptSoundAlikes)))
             .ThenByDescending(CountLettersRightFromStart)
             .First();
         var meant = matcher.ReplaceSoundAlikesWithExpectedLetters(_word, best, _acceptSoundAlikes);
         return matcher.KeepLatestAttemptAtWord(_word, meant, _acceptSoundAlikes);
+    }
+
+    // A reading that is mostly ordinary words is talk nearby, not spelling: "Oh, we shut the door.
+    // It is very bad." would otherwise give "O". It gives no letters.
+    private IReadOnlyList<char> ConvertSpellingToLetters(string reading)
+    {
+        var letters = _letterRules.Normalizer.ConvertToLetters(reading);
+        int wordCount = reading.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+        return letters.Count * 2 >= wordCount ? letters : [];
     }
 
     // Breaks a tie between two wrong readings: "T H R" for "third" beats "P H R".
@@ -141,11 +170,22 @@ internal sealed class AnswerInProgress
     public TimeSpan? TimeLeftBeforeDeciding()
     {
         if (IsFinishedEarly) return TimeSpan.Zero;
+        if (_heldWrongLetters is not null) return _heldSince + _waitBeforeWrongLetterCounts - _time.GetUtcNow();
         if (_letters.Count == 0 || _isChildSpeaking) return TimeLeftOf(_waitBeforeGivingUp);
         return _silenceThatEndsAnswer is { } silence ? TimeLeftOf(silence) : null;
     }
 
     private TimeSpan TimeLeftOf(TimeSpan allowedQuiet) => _lastActivityAt + allowedQuiet - _time.GetUtcNow();
+
+    /// <summary>Shows wrong letters that were held back, once the child stayed quiet. True if any were.</summary>
+    public bool AcceptHeldWrongLetters()
+    {
+        if (_heldWrongLetters is null || !EndsBySilence) return false;
+        _letters.Clear();
+        _letters.AddRange(_heldWrongLetters);
+        _heldWrongLetters = null;
+        return true;
+    }
 
     public AnswerResult ToResult() =>
         new(_letters.Count > 0 ? AnswerOutcome.Answered : AnswerOutcome.NoAnswer, _letters.ToList());

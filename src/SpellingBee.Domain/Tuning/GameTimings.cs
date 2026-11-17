@@ -5,7 +5,8 @@ public sealed record GameTimings(
     TimeSpan SilenceThatEndsSpokenAnswer,
     TimeSpan WaitBeforeRepeatingPrompt,
     int PromptsBeforePausing,
-    TimeSpan PauseBeforeListening)
+    TimeSpan PauseBeforeListening,
+    TimeSpan WaitBeforeWrongLetterCounts)
 {
     public static GameTimings Default { get; } = new(
         // Long enough for a five-year-old to stop and think between letters (a test child took
@@ -14,5 +15,9 @@ public sealed record GameTimings(
         SilenceThatEndsSpokenAnswer: TimeSpan.FromSeconds(6),
         WaitBeforeRepeatingPrompt: TimeSpan.FromSeconds(9),
         PromptsBeforePausing: 3,
-        PauseBeforeListening: TimeSpan.FromMilliseconds(0));
+        PauseBeforeListening: TimeSpan.FromMilliseconds(0),
+        // A pause in the middle of a letter can end a reading with that letter half-said ("O" for
+        // the start of "L" in "girl"). A wrong letter counts unless letters that fit the word come
+        // within this time.
+        WaitBeforeWrongLetterCounts: TimeSpan.FromSeconds(2));
 }

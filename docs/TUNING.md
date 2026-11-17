@@ -29,6 +29,14 @@ The app writes every answer it hears to a log file on your Mac. Nothing leaves t
    2026-11-16 20:50:42	word=girl	heard="jie I R L"
    ```
 
+> [!TIP]
+> For a whole test session, print one block per answer instead: the result, each reading, when
+> the letters appeared on screen, and the recording (Debug builds save one per answer):
+>
+> ```bash
+> dotnet run scripts/AnswerReport.cs --since 16:30
+> ```
+
    In the second line the child said **G**, but the recognizer wrote `jie`.
 
 ## Choose the value to change

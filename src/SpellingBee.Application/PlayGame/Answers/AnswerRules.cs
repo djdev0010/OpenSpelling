@@ -8,5 +8,10 @@ namespace SpellingBee.Application.PlayGame.Answers;
 /// or wrong.
 /// </param>
 /// <param name="WaitBeforeGivingUp">Quiet time with no letters at all before the prompt is repeated.</param>
+/// <param name="WaitBeforeWrongLetterCounts">Quiet time after a wrong letter before it shows and ends the answer.</param>
 internal sealed record AnswerRules(
-    LetterRules Letters, bool AcceptSoundAlikeLetters, TimeSpan? SilenceThatEndsAnswer, TimeSpan WaitBeforeGivingUp);
+    LetterRules Letters,
+    bool AcceptSoundAlikeLetters,
+    TimeSpan? SilenceThatEndsAnswer,
+    TimeSpan WaitBeforeGivingUp,
+    TimeSpan WaitBeforeWrongLetterCounts);
