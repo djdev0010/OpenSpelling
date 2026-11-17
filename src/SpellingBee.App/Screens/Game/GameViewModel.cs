@@ -129,7 +129,9 @@ public sealed partial class GameViewModel : ObservableObject
         IsSpeaking = phase is GamePhase.Teaching or GamePhase.Prompting or GamePhase.Celebrating or GamePhase.ShowingCorrectSpelling;
         IsPlaying = !IsReadyToStart && !IsFinished;
 
-        ShowKeyboard = IsPlaying && !IsWaitingForChild && _playGame.IsUsingOnScreenKeyboard;
+        // No keyboard while "Listen and learn" spells a word: the child only watches and listens.
+        bool isTeaching = phase == GamePhase.Teaching;
+        ShowKeyboard = IsPlaying && !isTeaching && !IsWaitingForChild && _playGame.IsUsingOnScreenKeyboard;
         if (ShowKeyboard) Keyboard.ShowChosenLayout();
         ShowGrownUpVerdictButtons = IsListening && _playGame.ShowsGrownUpVerdictButtons && !_playGame.IsUsingOnScreenKeyboard;
         ProgressText = $"{snapshot.Progress.SpelledRightCount} of {snapshot.Progress.Words.Count}";
